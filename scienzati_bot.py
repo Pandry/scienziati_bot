@@ -10,8 +10,8 @@ import re
 class Settings:
 	TelegramApiKey = "676490981:AAELlmTlQLD4_1HojhzWIX4yISDrVU5qDmA"
 	SupremeAdmins = ["pandry","andreaidini"]#Lowercase username!
-	ITGroup = 0
-	OTGroup = -1001176680738
+	ITGroup = -1001068546876
+	OTGroup = -1001218814107
 	subscriptionRows = 7
 
 
