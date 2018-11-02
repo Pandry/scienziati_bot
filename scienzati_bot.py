@@ -1086,6 +1086,9 @@ def callback_query(call):
 							lists = AvailableListsToUser(call.from_user.id)
 							markup = telebot.types.InlineKeyboardMarkup()
 							#Print the lists as inline buttons
+							if len(lists) == 0:
+									bot.edit_message_text("Al momento non è presente nessuna lista" , call.message.chat.id , call.message.message_id, call.id)
+									return
 							for ulist in lists:
 								#																			sub-{id} => subscript to list {id}
 								markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
