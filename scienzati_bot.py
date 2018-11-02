@@ -87,9 +87,10 @@ class constResources:
 
 	intro_mex = """Questo e' il bot del gruppo @scienza,
 	/iscrivi iscriviti al database di utenti e a liste di interessi
-	/modifica visiona e modifica la propria descrizione
+	/bio modifica la propria biografia
 	/liste consulta le attuali liste di interessi
-	/nuovalista crea nuove liste
+	/nuovalista crea nuove liste - solo per amministratori
+	/gdpr Consulta le norme sul GDPR
 	/privs elenca i privilegi utente"""
 
 	privs_mex = """privs =-1 -> utente non registrato
@@ -167,27 +168,55 @@ class UserStatus: #Enum emulator
 #
 class UserPermission: #Siply do an AND with the permission
 	ADMIN=int('1', 2)
-	CHANNEL=int('10', 2)
-	CREATE_LIST=int('100', 2)
+	CAN_ADD_ADMIN=int('10', 2)
+	CHANNEL=int('100', 2)
+	CREATE_LIST=int('1000', 2)
 
 	def IsAdmin(permission):
 		if (permission & UserPermission.ADMIN) == UserPermission.ADMIN:
 			return True
 		return False
 	
+	def SetAdminPermission(permission):
+		return permission | UserPermission.ADMIN
+	
+	def RemoveAdminPermission(permission):
+		return permission & (not(UserPermission.ADMIN))
+
+	def CanAddAdmin(permission):
+		if (permission & UserPermission.CAN_ADD_ADMIN) == UserPermission.CAN_ADD_ADMIN:
+			return True
+		return False
+	
+	def SetCanAddAdmin(permission):
+		return permission | UserPermission.CAN_ADD_ADMIN
+	
+	def RemoveCanAddAdmin(permission):
+		return permission & (not(UserPermission.CAN_ADD_ADMIN))
+	
 	def CanForwardToChannel(permission):
 		if (permission & UserPermission.CHANNEL) == UserPermission.CHANNEL:
 			return True
 		return False
+	
+	def SetForwardToChannel(permission):
+		return permission | UserPermission.CHANNEL
+	
+	def RemoveForwardToChannel(permission):
+		return permission & (not(UserPermission.CHANNEL))
 	
 	def CanCreateList(permission):
 		if (permission & UserPermission.CREATE_LIST) == UserPermission.CREATE_LIST:
 			return True
 		return False
 
-
-
-
+	def SetCanCreateList(permission):
+		return permission | UserPermission.CREATE_LIST
+	
+	def RemoveCanCreateList(permission):
+		return permission & (not(UserPermission.CREATE_LIST))
+	
+	
 
 
 ###
