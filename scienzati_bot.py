@@ -625,18 +625,19 @@ def subscribeUserListHandler(message):
 			lists = AvailableListsToUser(message.from_user.id)
 			markup = telebot.types.InlineKeyboardMarkup()
 			#Print the lists as inline buttons
-			if len(lists) == 0:
+			if lists == False:
 				msg = "Al momento non è presente nessuna lista.\nSi prega di riprovare in seguito."
-			for ulist in lists:
-				#																			sub-{id} => subscript to list {id}
-				markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
-			#If there are still lists, print the page delimiter
-			#if len(lists) > Settings.subscriptionRows-1:
-			if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows)) != False:
-				#																																	  osub-{n} => offest subscription, needed for pagination, 
-				#Teels the offset to set to correctly display the pages
-				markup.row(telebot.types.InlineKeyboardButton(" ", callback_data="ignore"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1)))
-				#⬅️ ➡️ 
+			else:
+				for ulist in lists:
+					#																			sub-{id} => subscript to list {id}
+					markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
+				#If there are still lists, print the page delimiter
+				#if len(lists) > Settings.subscriptionRows-1:
+				if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
+					#																																	  osub-{n} => offest subscription, needed for pagination, 
+					#Teels the offset to set to correctly display the pages
+					markup.row(telebot.types.InlineKeyboardButton(" ", callback_data="ignore"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1)))
+					#⬅️ ➡️ 
 			msg = bot.reply_to(message, msg, reply_markup=markup)
 			#SubscribeUserToList()
 
@@ -670,7 +671,7 @@ def unsubscribeUserListHandler(message):
 					markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="usub-"+str(ulist["ID"])))
 				#If there are still lists, print the page delimiter
 				#if len(lists) > Settings.subscriptionRows-1:
-				if SubscribedLists(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows)) != False:
+				if SubscribedLists(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
 					#																																	  osub-{n} => offest subscription, needed for pagination, 
 					#Teels the offset to set to correctly display the pages
 					markup.row(telebot.types.InlineKeyboardButton(" ", callback_data="ignore"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(Settings.subscriptionRows-1)))
@@ -951,7 +952,7 @@ def callback_query(call):
 							if actualOffset%(Settings.subscriptionRows-1) == 0:
 								lists = SubscribedLists(call.from_user.id, offset=int(actualOffset))
 								markup = telebot.types.InlineKeyboardMarkup()
-								if len(lists) == 0:
+								if lists == False:
 									bot.edit_message_text("Non sei iscritto a nessuna lista" , call.message.chat.id , call.message.message_id, call.id)
 									return
 								#Print the lists as inline buttons
@@ -959,14 +960,13 @@ def callback_query(call):
 									#																			sub-{id} => subscript to list {id}
 									markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="usub-"+str(ulist["ID"])))
 								#If there are still lists, print the page delimiter
-								#if len(lists) > Settings.subscriptionRows-1:
-								if SubscribedLists(call.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
+								if int(actualOffset) >=Settings.subscriptionRows -1 or SubscribedLists(call.from_user.id, limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
 									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"ousub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
 									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
 									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
 									leftButton, rightButton = emptyArrow,emptyArrow
 									#Check if there are more list
-									if SubscribedLists(call.from_user.id, limit=1, offset=int(actualOffset+Settings.subscriptionRows)) != False:
+									if SubscribedLists(call.from_user.id, limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
 										rightButton = nextArrow
 									if actualOffset - Settings.subscriptionRows +2 > 0:
 										leftButton = previousArrow
@@ -992,30 +992,11 @@ def callback_query(call):
 							else:
 								bot.answer_callback_query(call.id, text="❌ Si è verificato un errore", show_alert=False)
 							#Edit message back to list
-							lists = SubscribedLists(call.from_user.id)
-							markup = telebot.types.InlineKeyboardMarkup()
-							#Print the lists as inline buttons
-							if lists == False:
-								bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id)
-								return
-							for ulist in lists:
-								#																			sub-{id} => subscript to list {id}
-								markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="usub-"+str(ulist["ID"])))
-							#If there are still lists, print the page delimiter
-							if len(lists) > Settings.subscriptionRows-1:
-								previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"ousub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
-								nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
-								emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-								leftButton, rightButton = emptyArrow,emptyArrow
-								#Check if there are more list
-								if SubscribedLists(call.from_user.id, limit=1, offset=int(Settings.subscriptionRows)) != False:
-									rightButton = nextArrow
-								markup.row(leftButton, rightButton)
-							#msg = bot.reply_to(message, msg, reply_markup=markup)
-							bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
-							return
+							nc = call
+							nc.data = "ousub-0"
+							callback_query(nc)
+							return 
 			bot.answer_callback_query(call.id, text="Just go away", show_alert=False, cache_time=999999)
-
 
 		elif "usub-" in call.data:
 			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
@@ -1048,7 +1029,7 @@ def callback_query(call):
 								lists = AvailableListsToUser(call.from_user.id, offset=int(actualOffset))
 								markup = telebot.types.InlineKeyboardMarkup()
 								#Print the lists as inline buttons
-								if len(lists) == 0:
+								if lists == False:
 									bot.edit_message_text("Al momento non è presente nessuna lista" , call.message.chat.id , call.message.message_id, call.id)
 									return
 								for ulist in lists:
@@ -1056,17 +1037,18 @@ def callback_query(call):
 									markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
 								#If there are still lists, print the page delimiter
 								#if len(lists) > Settings.subscriptionRows-1:
-								previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"osub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
-								nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
-								emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-								leftButton, rightButton = emptyArrow,emptyArrow
-								#Check if there are more list
-								if AvailableListsToUser(call.from_user.id, limit=1, offset=int(actualOffset+Settings.subscriptionRows)) != False:
-									rightButton = nextArrow
-								if actualOffset - Settings.subscriptionRows +2 > 0:
-									leftButton = previousArrow
-								if leftButton != rightButton:
-									markup.row(leftButton, rightButton)
+								if int(actualOffset) >=Settings.subscriptionRows -1 or AvailableListsToUser(call.from_user.id, limit=1, offset=int( actualOffset + Settings.subscriptionRows-1)) != False:
+									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"osub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
+									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
+									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
+									leftButton, rightButton = emptyArrow,emptyArrow
+									#Check if there are more list
+									if AvailableListsToUser(call.from_user.id, limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
+										rightButton = nextArrow
+									if actualOffset - Settings.subscriptionRows +2 > 0:
+										leftButton = previousArrow
+									if leftButton != rightButton:
+										markup.row(leftButton, rightButton)
 								#msg = bot.reply_to(message, msg, reply_markup=markup)
 								bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 								return
@@ -1089,27 +1071,9 @@ def callback_query(call):
 							else:
 								bot.answer_callback_query(call.id, text="❌ Si è verificato un errore", show_alert=False)
 							#update message
-							lists = AvailableListsToUser(call.from_user.id)
-							markup = telebot.types.InlineKeyboardMarkup()
-							#Print the lists as inline buttons
-							if len(lists) == 0:
-									bot.edit_message_text("Al momento non è presente nessuna lista" , call.message.chat.id , call.message.message_id, call.id)
-									return
-							for ulist in lists:
-								#																			sub-{id} => subscript to list {id}
-								markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
-							#If there are still lists, print the page delimiter
-							if AvailableListsToUser(call.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
-								nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1))
-								emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-								leftButton, rightButton = emptyArrow,emptyArrow
-								#Check if there are more list
-								if AvailableListsToUser(call.from_user.id, limit=1, offset=Settings.subscriptionRows-1) != False:
-									rightButton = nextArrow
-								if leftButton != rightButton:
-									markup.row(leftButton, rightButton)
-							#msg = bot.reply_to(message, msg, reply_markup=markup)
-							bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
+							nc = call
+							nc.data = "osub-0"
+							callback_query(nc)
 							return
 
 @bot.inline_handler(func=lambda chosen_inline_result: True)
