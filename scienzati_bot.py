@@ -549,7 +549,7 @@ def start_user_registration(message):
 
 
 ### Aggioramento/ impostaizone bio
-@bot.message_handler(commands=['bio'])
+@bot.message_handler(commands=['bio', 'setbio'])
 def setBio(message):
 	if not message.from_user.is_bot and message.text != "" :
 		# Gets info about the user
@@ -609,11 +609,14 @@ def newList(message):
 @bot.message_handler(commands=['lists', 'liste'])
 def showLists(message):
 	msg = "Ecco le liste esistenti al momento:\n"
-	for list in GetLists():
+	liste = GetLists()
+	for list in liste:
 		msg = msg + list[0] + "\n"
+	if len(liste) == 0:
+		msg = "Al momento non sono presenti liste"
 	bot.reply_to(message, msg)
 
-@bot.message_handler(commands=['subscribe', 'join', 'registrati'])
+@bot.message_handler(commands=['subscribe', 'join', 'registrati', 'partecipa', 'aderisci', 'sottoscrivi'])
 def subscribeUserListHandler(message):
 	user = GetUser(message.from_user.id)
 	if user != False:
@@ -651,7 +654,7 @@ def subscribeUserListHandler(message):
 	else:
 		bot.reply_to(message, "Sarebbe opportuno registrarsi prima, tu non credi?\nPuoi farlo attraverso il comando /iscrivi")
 
-@bot.message_handler(commands=['subscribedto', 'joinedto', 'inscriptions', 'iscrizioni', 'disiscriviti', 'rimuovi'])
+@bot.message_handler(commands=['subscribedto', 'joinedto', 'inscriptions', 'iscrizioni','disiscrivi', 'disiscriviti', 'rimuovi', 'esci'])
 def unsubscribeUserListHandler(message):
 	user = GetUser(message.from_user.id)
 	if user != False:
