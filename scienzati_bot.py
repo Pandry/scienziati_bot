@@ -809,7 +809,8 @@ def revokeListCreationPermissionHandler(message):
 
 @bot.message_handler(commands=['ping'])
 def pingHandler(message):
-	bot.reply_to(message, "🏓 Pong!")
+	if IsUserSuperadmin(message.from_user.username) or (GetUser(message.from_user.id) != False and UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id))):
+		bot.reply_to(message, "🏓 Pong!")
 
 
 
