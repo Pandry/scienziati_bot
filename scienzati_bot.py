@@ -4,6 +4,7 @@ import time
 import sqlite3
 import random
 import re
+import sys
 
 #Settings class
 
@@ -819,7 +820,11 @@ def pingHandler(message):
 	if IsUserSuperadmin(message.from_user.username) or (GetUser(message.from_user.id) != False and UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id))):
 		bot.reply_to(message, "🏓 Pong!")
 
-
+@bot.message_handler(commands=['die', 'crash'])
+def pingHandler(message):
+	if IsUserSuperadmin(message.from_user.username) or (GetUser(message.from_user.id) != False and UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id))):
+		bot.reply_to(message, "Autodestruction sequence initialized... \n💥 Poof! ✨")
+		sys.exit(0)
 
 @bot.message_handler(func=lambda m: True)
 def genericMessageHandler(message):
