@@ -45,6 +45,8 @@ dbC = dbConnection.cursor()
 #This part of the code is used to initalize the database.
 #It runs the "seed" query
 #This is the query that is used to initialize the SQLite3 database
+
+#TODO: add referencing message to make the bot statful
 initQuery= """CREATE TABLE IF NOT EXISTS `Users` (
 `ID`  INTEGER NOT NULL UNIQUE,
 `Nickname`  TEXT NOT NULL,
@@ -944,7 +946,8 @@ def callback_query(call):
 									#																			sub-{id} => subscript to list {id}
 									markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="usub-"+str(ulist["ID"])))
 								#If there are still lists, print the page delimiter
-								if len(lists) > Settings.subscriptionRows-1:
+								#if len(lists) > Settings.subscriptionRows-1:
+								if SubscribedLists(call.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
 									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"ousub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
 									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
 									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
@@ -954,7 +957,8 @@ def callback_query(call):
 										rightButton = nextArrow
 									if actualOffset - Settings.subscriptionRows +2 > 0:
 										leftButton = previousArrow
-									markup.row(leftButton, rightButton)
+									if leftButton != rightButton:
+										markup.row(leftButton, rightButton)
 								#msg = bot.reply_to(message, msg, reply_markup=markup)
 								bot.edit_message_text("Ecco un elenco delle liste attualmente alle quali sei iscritto al momento:\n(Per rimuovere la sottoscrizione, è sufficiente \"tapparla\" e confermare)" , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 								return
@@ -978,8 +982,9 @@ def callback_query(call):
 							lists = SubscribedLists(call.from_user.id)
 							markup = telebot.types.InlineKeyboardMarkup()
 							#Print the lists as inline buttons
-							if len(lists) == 0:
+							if lists == False:
 								bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id)
+								return
 							for ulist in lists:
 								#																			sub-{id} => subscript to list {id}
 								markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="usub-"+str(ulist["ID"])))
@@ -1037,16 +1042,17 @@ def callback_query(call):
 									#																			sub-{id} => subscript to list {id}
 									markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
 								#If there are still lists, print the page delimiter
-								if len(lists) > Settings.subscriptionRows-1:
-									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"osub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
-									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
-									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-									leftButton, rightButton = emptyArrow,emptyArrow
-									#Check if there are more list
-									if AvailableListsToUser(call.from_user.id, limit=1, offset=int(actualOffset+Settings.subscriptionRows)) != False:
-										rightButton = nextArrow
-									if actualOffset - Settings.subscriptionRows +2 > 0:
-										leftButton = previousArrow
+								#if len(lists) > Settings.subscriptionRows-1:
+								previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"osub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
+								nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
+								emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
+								leftButton, rightButton = emptyArrow,emptyArrow
+								#Check if there are more list
+								if AvailableListsToUser(call.from_user.id, limit=1, offset=int(actualOffset+Settings.subscriptionRows)) != False:
+									rightButton = nextArrow
+								if actualOffset - Settings.subscriptionRows +2 > 0:
+									leftButton = previousArrow
+								if leftButton != rightButton:
 									markup.row(leftButton, rightButton)
 								#msg = bot.reply_to(message, msg, reply_markup=markup)
 								bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
@@ -1077,13 +1083,15 @@ def callback_query(call):
 								#																			sub-{id} => subscript to list {id}
 								markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
 							#If there are still lists, print the page delimiter
-							nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1))
-							emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-							leftButton, rightButton = emptyArrow,emptyArrow
-							#Check if there are more list
-							if AvailableListsToUser(call.from_user.id, limit=1, offset=Settings.subscriptionRows-1) != False:
-								rightButton = nextArrow
-							markup.row(leftButton, rightButton)
+							if AvailableListsToUser(call.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
+								nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1))
+								emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
+								leftButton, rightButton = emptyArrow,emptyArrow
+								#Check if there are more list
+								if AvailableListsToUser(call.from_user.id, limit=1, offset=Settings.subscriptionRows-1) != False:
+									rightButton = nextArrow
+								if leftButton != rightButton:
+									markup.row(leftButton, rightButton)
 							#msg = bot.reply_to(message, msg, reply_markup=markup)
 							bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 							return
