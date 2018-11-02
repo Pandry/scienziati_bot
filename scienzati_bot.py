@@ -807,6 +807,12 @@ def revokeListCreationPermissionHandler(message):
 	bot.reply_to(message, "❌ Error 403 - Unauthorized")
 
 
+@bot.message_handler(commands=['ping'])
+def pingHandler(message):
+	bot.reply_to(message, "🏓 Pong!")
+
+
+
 @bot.message_handler(func=lambda m: True)
 def genericMessageHandler(message):
 	#get info about the user
