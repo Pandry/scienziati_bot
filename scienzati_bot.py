@@ -708,7 +708,7 @@ def callback_query(call):
 		#Check if is to abort bio
 		if call.data == "aBio":
 			#Check if the guy who pressed is the same who asked to set the bio
-			if call.from_user.id == call.message.reply_to_message.from_user.id:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				#Check that the user needs to set the bio
 				if user["Status"] == UserStatus.WAITING_FOR_BIOGRAPHY :
 					success = abortNewBio(call.from_user.id)
@@ -720,7 +720,7 @@ def callback_query(call):
 		#Check if is to abort list creation
 		elif call.data == "aList":
 			#Check if the guy who pressed is the same who asked to set the bio
-			if call.from_user.id == call.message.reply_to_message.from_user.id:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				#Check that the user needs to set the bio
 				
 				if user["Status"] == UserStatus.WAITING_FOR_LIST :
@@ -731,7 +731,7 @@ def callback_query(call):
 				else:
 					bot.delete_message(call.message.chat.id , call.message.message_id)
 		elif "ousub-" in call.data:
-			if call.from_user.id == call.message.reply_to_message.from_user.id:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				if user["Status"] == UserStatus.ACTIVE :
 					#Show next n rows + offset, osub-{offset}
 					#Safe data checks
@@ -768,7 +768,7 @@ def callback_query(call):
 					bot.answer_callback_query(call.id, text="Just go away", show_alert=False, cache_time=999999)
 
 		elif "cusub-" in call.data:
-			if call.from_user.id == call.message.reply_to_message.from_user.id:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				if user["Status"] == UserStatus.ACTIVE :
 					splittedString = call.data.split('-')
 					if len(splittedString) == 2:
@@ -806,7 +806,7 @@ def callback_query(call):
 
 
 		elif "usub-" in call.data:
-			if call.from_user.id == call.message.reply_to_message.from_user.id:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				if user["Status"] == UserStatus.ACTIVE :
 					#Show next n rows + offset, osub-{offset}
 					#Safe data checks
@@ -824,7 +824,7 @@ def callback_query(call):
 							return
 			bot.answer_callback_query(call.id, text="Just go away", show_alert=False, cache_time=999999)
 		elif "osub-" in call.data:
-			if call.from_user.id == call.message.reply_to_message.from_user.id:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				if user["Status"] == UserStatus.ACTIVE :
 					#Show next n rows + offset, osub-{offset}
 					#Safe data checks
@@ -862,7 +862,7 @@ def callback_query(call):
 
 		elif "sub-" in call.data:
 			#Subscribe to list sub-{id}
-			if call.from_user.id == call.message.reply_to_message.from_user.id:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				if user["Status"] == UserStatus.ACTIVE :
 					#Show next n rows + offset, osub-{offset}
 					#Safe data checks
