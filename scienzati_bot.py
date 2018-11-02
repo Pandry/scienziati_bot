@@ -338,6 +338,7 @@ def CreateNewList(name):
 	try:
 		res = dbC.execute('INSERT INTO Lists (Name) VALUES (?)', (name,) )
 		if res:
+			CommitDb()
 			return True
 		return False
 	except:
@@ -361,6 +362,7 @@ def SubscribeUserToList(userID, listID):
 	dbC.execute('INSERT INTO Subscriptions (User, List) VALUES (?,?)', (userID, listID))
 	res = dbC.fetchall()
 	if res != None:
+		CommitDb()
 		return True
 	return False
 
@@ -370,7 +372,7 @@ def UnubscribeUserFromList(userID, listID):
 	dbC.execute('DELETE FROM Subscriptions WHERE User=? AND List=?', (userID, listID))
 	res = dbC.fetchall()
 	if res != None:
-		#User already subscribed
+		CommitDb()
 		return True
 	return False
 	
@@ -431,7 +433,11 @@ def GetListSubscribers(listID):
 
 def UpdateNickname(userID, nickname):
 	dbC = dbConnection.cursor()
-	dbC.execute('UPDATE Users SET Nickname=? WHERE ID = ?', (nickname, userID, ))
+	res = dbC.execute('UPDATE Users SET Nickname=? WHERE ID = ?', (nickname, userID, ))
+	if res:
+		CommitDb()
+		return True
+	return False
 
 #Abort the inserting process of a new Bio
 #WARNING: CHECK IF USER IS BANNED BEFORE, OR HE WILL GET UNBANNED
