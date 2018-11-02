@@ -169,8 +169,9 @@ class UserStatus: #Enum emulator
 class UserPermission: #Siply do an AND with the permission
 	ADMIN=int('1', 2)
 	CAN_ADD_ADMIN=int('10', 2)
-	CHANNEL=int('100', 2)
-	CREATE_LIST=int('1000', 2)
+	CAN_REMOVE_ADMIN=int('100', 2)
+	CHANNEL=int('1000', 2)
+	CREATE_LIST=int('10000', 2)
 
 	def IsAdmin(permission):
 		if (permission & UserPermission.ADMIN) == UserPermission.ADMIN:
@@ -193,6 +194,17 @@ class UserPermission: #Siply do an AND with the permission
 	
 	def RemoveCanAddAdmin(permission):
 		return permission & (not(UserPermission.CAN_ADD_ADMIN))
+
+	def CanRemoveAdmin(permission):
+		if (permission & UserPermission.CAN_REMOVE_ADMIN) == UserPermission.CAN_REMOVE_ADMIN:
+			return True
+		return False
+	
+	def SetCanRemoveAdmin(permission):
+		return permission | UserPermission.CAN_REMOVE_ADMIN
+	
+	def RemoveCanRemoveAdmin(permission):
+		return permission & (not(UserPermission.CAN_REMOVE_ADMIN))
 	
 	def CanForwardToChannel(permission):
 		if (permission & UserPermission.CHANNEL) == UserPermission.CHANNEL:
@@ -263,6 +275,15 @@ def GetUserPermissionsValue(userID):
 	if user != False:
 		return user["Permissions"]
 	#No user exist, returning Flase for now
+	return False
+
+# GetUserPermissionsValue takes the userID as input and returns the permission value (int) direclty from the database
+def SetUserPermissionsValue(userID,newPermission):
+	dbC = dbConnection.cursor()
+	res = dbC.execute('UPDATE Users SET Permissions=? WHERE ID = ?', (newPermission, userID,) )
+	if res:
+		CommitDb()
+		return True
 	return False
 
 def GetUserStatusValue(userID):
@@ -444,6 +465,27 @@ def getUsersIdLike(userNick):
 		return res
 	return False
 
+def getUserId(userNick):
+	dbC = dbConnection.cursor()
+	dbC.execute('SELECT `ID` FROM Users WHERE `Nickname`= ?;', (userNick,))
+	res = dbC.fetchone()
+	if res != None:
+		return res[0]
+	return False
+
+def setNewUserStatus(userdID, statusID):
+	dbC = dbConnection.cursor()
+	#res = dbC.execute('UPDATE Users SET Status=? WHERE ID = ?;', (UserStatus.WAITING_FOR_BIOGRAPHY , message.from_user.id,) )
+	res = dbC.execute('UPDATE Users SET Status=? WHERE ID = ?', (statusID , userdID,) )
+	if res:
+		CommitDb()
+		return True
+	return False
+
+
+def IsUserSuperadmin(userNick):
+	return userNick.lower() in Settings.SupremeAdmins
+
 
 ###
 # Bot functions
@@ -513,10 +555,8 @@ def setBio(message):
 			#Check if the user needs to set a biography
 			if UserStatus.CanEnterBio(user["Status"]):
 				#Asks for the bio
-				dbC = dbConnection.cursor()
-				#res = dbC.execute('UPDATE Users SET Status=? WHERE ID = ?;', (UserStatus.WAITING_FOR_BIOGRAPHY , message.from_user.id,) )
-				res = dbC.execute('UPDATE Users SET Status=? WHERE ID = ?', (UserStatus.WAITING_FOR_BIOGRAPHY , message.from_user.id,) )
 				#res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE employeeid = ?;', (0, message.text, message.from_user.id,) )
+				res = setNewUserStatus(message.from_user.id, UserStatus.WAITING_FOR_BIOGRAPHY)
 				#Tries to force the user to reply to the message
 				#markup = telebot.types.ForceReply(selective=False)
 				markup = telebot.types.InlineKeyboardMarkup()
@@ -537,7 +577,7 @@ def setBio(message):
 #Creazione di una nuova lista
 @bot.message_handler(commands=['newlist', 'nuovalista'])
 def newList(message):
-	if message.from_user.username.lower() in Settings.SupremeAdmins or UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id)) or UserPermission.CanCreateList(GetUserPermissionsValue(message.from_user.id)):
+	if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id)) or UserPermission.CanCreateList(GetUserPermissionsValue(message.from_user.id)):
 		if not message.from_user.is_bot and message.text != "" :
 			# Gets info about the user
 			user = GetUser(message.from_user.id)
@@ -547,8 +587,7 @@ def newList(message):
 				msg = bot.reply_to(message, "Something's wrong here. error code: #R747")
 			else:
 				#Asks for the bio
-				dbC = dbConnection.cursor()
-				res = dbC.execute('UPDATE Users SET Status=? WHERE ID = ?', (UserStatus.WAITING_FOR_LIST , message.from_user.id,) )
+				res = setNewUserStatus(message.from_user.id,UserStatus.WAITING_FOR_LIST )
 				markup = telebot.types.InlineKeyboardMarkup()
 				markup.row_width = 1
 				markup.add(telebot.types.InlineKeyboardButton('❌ Annulla', callback_data=f"aList"))
@@ -640,6 +679,132 @@ def unsubscribeUserListHandler(message):
 	else:
 		bot.reply_to(message, "Sarebbe opportuno registrarsi prima, tu non credi?\nPuoi farlo attraverso il comando /iscrivi")
 
+
+@bot.message_handler(commands=['setadmin'])
+def setAdminPermissionHandler(message):
+	user = GetUser(message.from_user.id)
+	if user != False:
+		userPermission = GetUserPermissionsValue(message.from_user.id)
+		if IsUserSuperadmin(message.from_user.username) or (UserPermission.IsAdmin(userPermission) and UserPermission.CanAddAdmin(userPermission)):
+			args = message.text.split(' ')
+			if len(args) == 2:
+				newAdminNickname = args[1].replace('@','').lower()
+				newAdminId = getUserId(newAdminNickname)
+				if newAdminId == False:
+					#It looks like there's no user called this way
+					bot.reply_to(message, "❌ Sembra che l'utente non sia registrato.\nÈ opportuno farlo registrare prima di promuoverlo ad amministratore!")
+					return
+				newAdminpermission = GetUserPermissionsValue(newAdminId)
+				newAdminpermission = UserPermission.SetAdminPermission(newAdminpermission)
+				res = SetUserPermissionsValue(newAdminId, newAdminpermission)
+				if res == True:
+					#Say OK
+					bot.reply_to(message, "✅ Admin impostato con successo!\nLode al nuovo admin, @" + newAdminNickname + "!")
+				else:
+					#not ok
+					bot.reply_to(message, "❌ Impossibile impostare l'amministratore!")
+				return
+			else:
+				bot.reply_to(message, "❌ Utilizzo: /setadmin {@}username")
+				return
+	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+
+@bot.message_handler(commands=['unsetadmin', 'removeadmin'])
+def unsetAdminPermissionHandler(message):
+	user = GetUser(message.from_user.id)
+	if user != False:
+		userPermission = GetUserPermissionsValue(message.from_user.id)
+		if IsUserSuperadmin(message.from_user.username) or (UserPermission.IsAdmin(userPermission) and UserPermission.CanRemoveAdmin(userPermission)):
+			args = message.text.split(' ')
+			if len(args) == 2:
+				oldAdminNickname = args[1].replace('@','').lower()
+				oldAdminId = getUserId(oldAdminNickname)
+				if oldAdminId == False:
+					#It looks like there's no user called this way
+					bot.reply_to(message, "❌ Sembra che l'utente non sia registrato.\nÈ opportuno farlo registrare prima di promuoverlo ad amministratore!")
+					return
+				oldAdminpermission = GetUserPermissionsValue(oldAdminId)
+				if not UserPermission.IsAdmin(oldAdminpermission):
+					bot.reply_to(message, "❌ Sembra che l'utente non sia amministratore!")
+					return
+				oldAdminpermission = UserPermission.RemoveAdminPermission(oldAdminpermission)
+				res = SetUserPermissionsValue(oldAdminId, oldAdminpermission)
+				if res == True:
+					#Say OK
+					bot.reply_to(message, "✅ Admin congedato con successo!")
+				else:
+					#not ok
+					bot.reply_to(message, "❌ Impossibile congedare l'amministratore!")
+				return
+			else:
+				bot.reply_to(message, "❌ Utilizzo: /removeadmin {@}username")
+				return
+	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+
+
+@bot.message_handler(commands=['grantlist'])
+def grantListCreationPermissionHandler(message):
+	user = GetUser(message.from_user.id)
+	if user != False:
+		userPermission = GetUserPermissionsValue(message.from_user.id)
+		if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(userPermission):
+			args = message.text.split(' ')
+			if len(args) == 2:
+				newUserNickname = args[1].replace('@','').lower()
+				newUserId = getUserId(newUserNickname)
+				if newUserId == False:
+					#It looks like there's no user called this way
+					bot.reply_to(message, "❌ Sembra che l'utente non sia registrato.\nÈ opportuno farlo registrare prima di promuoverlo e permettergli di creare liste!")
+					return
+				newUserpermission = GetUserPermissionsValue(newUserId)
+				newUserpermission = UserPermission.SetCanCreateList(newUserpermission)
+				res = SetUserPermissionsValue(newUserId, newUserpermission)
+				if res == True:
+					#Say OK
+					bot.reply_to(message, "✅ Permesso di creazione liste assegnato!")
+				else:
+					#not ok
+					bot.reply_to(message, "❌ Impossibile impostare il permesso!")
+				return
+			else:
+				bot.reply_to(message, "❌ Utilizzo: /grantlist {@}username")
+				return
+	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+
+@bot.message_handler(commands=['revokelist'])
+def revokeListCreationPermissionHandler(message):
+	user = GetUser(message.from_user.id)
+	if user != False:
+		userPermission = GetUserPermissionsValue(message.from_user.id)
+		if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(userPermission) :
+			args = message.text.split(' ')
+			if len(args) == 2:
+				oldUserNickname = args[1].replace('@','').lower()
+				oldUserId = getUserId(oldUserNickname)
+				if oldUserId == False:
+					#It looks like there's no user called this way
+					bot.reply_to(message, "❌ Sembra che l'utente non sia registrato.\nÈ opportuno farlo registrare prima di promuoverlo ad amministratore!")
+					return
+				oldUserpermission = GetUserPermissionsValue(oldUserId)
+				oldUserpermission = UserPermission.RemoveCanCreateList(oldUserpermission)
+				res = SetUserPermissionsValue(oldUserId, oldUserpermission)
+				if res == True:
+					#Say OK
+					#If was creating list, abort
+					oldstatus = GetUserStatusValue(oldUserId)
+					if oldstatus == UserStatus.WAITING_FOR_LIST:
+						setNewUserStatus(oldUserId,UserStatus.ACTIVE)
+					bot.reply_to(message, "✅ Permesso revocato con successo!")
+				else:
+					#not ok
+					bot.reply_to(message, "❌ Impossibile revocare il permesso!")
+				return
+			else:
+				bot.reply_to(message, "❌ Utilizzo: /revokelist {@}username")
+				return
+	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+
+
 @bot.message_handler(func=lambda m: True)
 def genericMessageHandler(message):
 	#get info about the user
@@ -657,7 +822,7 @@ def genericMessageHandler(message):
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
 				#Tries to force the user to reply to the message
 			#TODO: Not sure about the order - needs to be checked
-			elif message.chat.type == "group" or message.chat.type == "supergroup" and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
+			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
 				dbC = dbConnection.cursor()
 				res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE ID = ?', (UserStatus.ACTIVE, message.text, message.from_user.id,) )
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
@@ -679,7 +844,7 @@ def genericMessageHandler(message):
 				#Tries to force the user to reply to the message
 				
 			#TODO: Not sure about the order - needs to be checked
-			elif message.chat.type == "group" or message.chat.type == "supergroup" and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
+			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
 				success = CreateNewList(listName)
 				if success:
 					msg = bot.reply_to(message, "Lista creata con successo!")
@@ -696,7 +861,7 @@ def genericMessageHandler(message):
 				#https://stackoverflow.com/a/12400584
 				time.localtime(message.date)))
 
-			if message.chat.type == "group" or message.chat.type == "supergroup" and not message.from_user.is_bot and message.text != "":
+			if (message.chat.type == "group" or message.chat.type == "supergroup") and not message.from_user.is_bot and message.text != "":
 				if message.text[0] == "#" or message.text[0] == "@" or message.text[0] == "." or message.text[0] == "!":
 					listName = message.text.strip()[1:].lower()
 					if ListExists(listName):
