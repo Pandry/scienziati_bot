@@ -830,11 +830,13 @@ def unsubscribeUserListHandler(message):
 					markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="usub-"+str(ulist["ID"])))
 				#If there are still lists, print the page delimiter
 				#if len(lists) > Settings.subscriptionRows-1:
+				rightButton = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
 				if SubscribedLists(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
+					rightButton = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(Settings.subscriptionRows-1))
 					#																																	  osub-{n} => offest subscription, needed for pagination, 
 					#Teels the offset to set to correctly display the pages
 					#markup.row(telebot.types.InlineKeyboardButton(" ", callback_data="ignore"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(Settings.subscriptionRows-1)))
-					markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(Settings.subscriptionRows-1)))
+				markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"), rightButton)
 					#⬅️ ➡️ 
 			msg = bot.reply_to(message, msg, reply_markup=markup)
 			#SubscribeUserToList()
