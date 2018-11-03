@@ -786,10 +786,11 @@ def completeLists(message):
 	for list in liste:
 		msg = msg + list["Name"] + "\n"
 		users = GetListSubscribers(list["ID"] )
-		for user in users[:-1]:
-			msg = msg + "║" + " " + GetUserNickname(user[0]) + "\n"
-		msg = msg + "╚" + " " + GetUserNickname(users[len(users)-1][0]) + "\n"
-		msg = msg + "\n"
+		if users != False:
+			for user in users[:-1]:
+				msg = msg + "║" + " " + GetUserNickname(user[0]) + "\n"
+			msg = msg + "╚" + " " + GetUserNickname(users[len(users)-1][0]) + "\n"
+			msg = msg + "\n"
 	if len(liste) == 0:
 		msg = "Al momento non sono presenti liste"
 	bot.reply_to(message, msg, reply_markup=markup)
