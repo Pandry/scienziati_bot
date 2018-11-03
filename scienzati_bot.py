@@ -741,13 +741,15 @@ def deleteListHandler(message):
 #Lista delle liste
 @bot.message_handler(commands=['lists', 'liste'])
 def showLists(message):
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
 	liste = GetListsNames(limit=None)
 	msg = "Al momento esistono " + str(len(liste))+ " liste; eccole qui:\n"
 	for list in liste:
 		msg = msg + list[0] + "\n"
 	if len(liste) == 0:
 		msg = "Al momento non sono presenti liste"
-	bot.reply_to(message, msg)
+	bot.reply_to(message, msg, reply_markup=markup)
 
 @bot.message_handler(commands=['subscribe', 'join', 'registrati', 'partecipa', 'aderisci', 'sottoscrivi'])
 def subscribeUserListHandler(message):
