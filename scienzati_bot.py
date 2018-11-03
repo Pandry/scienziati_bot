@@ -907,7 +907,7 @@ def grantListCreationPermissionHandler(message):
 		if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(userPermission):
 			args = message.text.split(' ')
 			if len(args) == 2:
-				newUserNickname = userNickname
+				newUserNickname = args[1]
 				newUserId = getUserId(newUserNickname)
 				if newUserId == False:
 					#It looks like there's no user called this way
@@ -971,7 +971,7 @@ def pingHandler(message):
 		bot.reply_to(message, "🏓 Pong!", reply_markup=markup )
 
 @bot.message_handler(commands=['die', 'crash'])
-def pingHandler(message):
+def dieHandler(message):
 	if IsUserSuperadmin(message.from_user.username) or (GetUser(message.from_user.id) != False and UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id))):
 		bot.reply_to(message, "Autodestruction sequence initialized... \n💥 Poof! ✨")
 		sys.exit(10)
@@ -1014,10 +1014,10 @@ def genericMessageHandler(message):
 			#TODO check for ASCII ONLY (RegEx?), replace spaces with underscores, 
 			listName = message.text.lower()
 			p = re.compile(r'[a-z0-9_\-]+', re.IGNORECASE)
-			if not p.match(listName):
-				bot.reply_to(message, "Qualcosa è andato storto :c\n Il nome sembra contenre caratteri non permessi. Sono permesse solo lettere, numeri, underscores(_) e trattini")
-				return
 			if message.chat.type == "private":
+				if not p.match(listName):
+					bot.reply_to(message, "Qualcosa è andato storto :c\n Il nome sembra contenre caratteri non permessi. Sono permesse solo lettere, numeri, underscores(_) e trattini")
+					return
 				success = CreateNewList(listName)
 				if success:
 					msg = bot.reply_to(message, "Lista creata con successo!")
@@ -1025,8 +1025,10 @@ def genericMessageHandler(message):
 					msg = bot.reply_to(message, "Qualcosa è andato storto :c\n Sei sicuro che non esista già una lista con lo stesso nome?")
 				#Tries to force the user to reply to the message
 				
-			#TODO: Not sure about the order - needs to be checked
 			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
+				if not p.match(listName):
+					bot.reply_to(message, "Qualcosa è andato storto :c\n Il nome sembra contenre caratteri non permessi. Sono permesse solo lettere, numeri, underscores(_) e trattini")
+					return
 				success = CreateNewList(listName)
 				if success:
 					msg = bot.reply_to(message, "Lista creata con successo!")
@@ -1109,7 +1111,8 @@ def callback_query(call):
 				else:
 					bot.delete_message(call.message.chat.id , call.message.message_id)
 		elif "deleteDis" in call.data: 
-			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
+			userPerm = GetUserPermissionsValue(call.from_user.id)
+			if (IsUserSuperadmin(call.from_user.username) or UserPermission.IsAdmin(userPerm)) or call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				bot.delete_message(call.message.chat.id , call.message.message_id)
 
 		elif "ousub-" in call.data:
