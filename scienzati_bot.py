@@ -789,8 +789,6 @@ def completeLists(message):
 		for user in users[:-1]:
 			msg = msg + "║" + " " + GetUserNickname(user[0]) + "\n"
 		msg = msg + "╚" + " " + GetUserNickname(users[len(users)-1][0]) + "\n"
-
-		
 		msg = msg + "\n"
 	if len(liste) == 0:
 		msg = "Al momento non sono presenti liste"
@@ -817,10 +815,12 @@ def subscribeUserListHandler(message):
 					markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="sub-"+str(ulist["ID"])))
 				#If there are still lists, print the page delimiter
 				#if len(lists) > Settings.subscriptionRows-1:
-				if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
+				rightButton = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
+				if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows)) != False:
 					#																																	  osub-{n} => offest subscription, needed for pagination, 
 					#Teels the offset to set to correctly display the pages
-					markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1)))
+					rightButton = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1))
+				markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"), rightButton)
 					#⬅️ ➡️ 
 			msg = bot.reply_to(message, msg, reply_markup=markup)
 			#SubscribeUserToList()
