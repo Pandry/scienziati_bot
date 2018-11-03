@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.8"
+	version = "α0.1.2.9"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -504,9 +504,13 @@ def abortNewList(userID):
 		return True
 	return False
 
-def getUsersIdLike(userNick):
+def getUsersIdLike(userNick, limit = 5, offset = 0):
 	dbC = dbConnection.cursor()
-	dbC.execute('SELECT `ID` FROM Users WHERE `Nickname` LIKE ?;', ("%"+userNick.replace("%", ":%")+"%",))
+	if limit == None:
+		dbC.execute('SELECT `ID` FROM Users WHERE `Nickname` LIKE ?;', ("%"+userNick.replace("%", ":%")+"%",))
+	else:
+		dbC.execute('SELECT `ID` FROM Users WHERE `Nickname` LIKE ? LIMIT ? OFFSET ?;', ("%"+userNick.replace("%", ":%")+"%",limit, offset))
+
 	res = dbC.fetchall()
 	if res != None:
 		return res
