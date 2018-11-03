@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.2E dev"
+	version = "α0.1.2.2G dev"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -564,15 +564,26 @@ def send_version(message):
 def send_privs(message):
 	args = message.text.split(' ')
 	userid = message.from_user.id
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+
 	if len(args) == 2:
 		reqUserid = getUserId(args[1])
 		if reqUserid != False:
 			userid = reqUserid
+		else:
+			bot.reply_to(message, "L'utente inserito non è stato trovato in database", reply_markup=markup)
+	elif len(args) > 2:
+		bot.reply_to(message, "Sono stati inseriti troppi parametri", reply_markup=markup)
+	
+	if GetUser(userid) == False:
+		bot.reply_to(message, "Non sei presente in database, perciò non è possibile conoscere il tuo livello di privilegi.", reply_markup=markup)
+		return
 
 	userPermission = GetUserPermissionsValue(userid)
 	markup = telebot.types.InlineKeyboardMarkup()
 	msg = "Ecco i privilegi dell'utente @" + GetUserNickname(userid) + ":\n ⚙️ Ranks\nSupreme admin: "
-	if IsUserSuperadmin(message.from_user.username):
+	if IsUserSuperadmin(GetUserNickname(userid)):
 		msg = msg + "✅ Sì"
 	else:
 		msg = msg + "❌ Nope"
@@ -614,7 +625,6 @@ def send_privs(message):
 		msg = msg + "❌ Nope"
 	
 
-	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
 	bot.reply_to(message,  msg, reply_markup=markup)
 
 # Replies with the static message before
