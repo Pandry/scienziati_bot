@@ -102,6 +102,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	admin_help = """Comandi admin... blabla
 	/nuovalista
 	/rimuovilista
+	/del delete bot message
 	=== CA$TA THINGS ===
 	/setadmin
 	/unsetadmin
@@ -109,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.4"
+	version = "α0.1.2.5"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -751,9 +752,9 @@ def deleteListHandler(message):
 @bot.message_handler(commands=['del', 'delete'])
 def deleteBotMessage(message):
 	userPerm = GetUserPermissionsValue(message.from_user.id)
-	if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(userPerm):
+	if userPerm != False and (IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(userPerm)):
 		if message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
-			bot.delete_message(message.chat.id , message.message_id)
+			bot.delete_message(message.chat.id , message.reply_to_message.message_id)
 
 
 #Lista delle liste
