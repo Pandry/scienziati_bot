@@ -1337,8 +1337,9 @@ def getUserBioInlineQuery(inline_query):
 	responses = []
 	usersIDs = getUsersIdLike(user)
 	for userid in usersIDs:
-		userNick = GetUserNickname(userid[0])
-		userBio = GetUserBio(userid[0])
+		userid = userid[0]
+		userNick = GetUserNickname(userid)
+		userBio = GetUserBio(userid)
 		if userBio != None:
 			responses.append(
 				telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s Bio: " + userBio,
@@ -1346,8 +1347,21 @@ def getUserBioInlineQuery(inline_query):
 			)
 		responses.append(
 			telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s permissions",
-													telebot.types.InputTextMessageContent(getUserPermissionText(userid[0])))
+													telebot.types.InputTextMessageContent(getUserPermissionText(userid)))
 		)
+		lists = SubscribedLists(userid, limit=None)
+		msg = userNick[0].upper() + userNick[1:] + " is not subscribed to any list yet! :c"
+		if lists != False:
+			msg = "is subscribed to those lists: \n"
+			for lst in lists:
+				msg = msg + "#" + lst["Name"] + ", "
+			msg = msg[:len(msg)-2]
+
+		responses.append(
+			telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s lists",
+													telebot.types.InputTextMessageContent(msg))
+		)
+
 		
 		
 	bot.answer_inline_query(inline_query.id, responses)
