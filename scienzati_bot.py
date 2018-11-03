@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.I dev"
+	version = "α0.1.2.0"
 
 
 	privs_mex = """privs =-1 -> utente non registrato
