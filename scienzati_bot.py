@@ -95,11 +95,23 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 /aderisci per iscriverti ad una lista, puoi usare anche: /partecipa e /sottoscrivi
 /bio per scrivere qualcosa su di te
 /liste per scoprire le liste già presenti
-/nuovalista per aggiungere una nuova lista (si deve avere il permesso)
 /registrati per registrarti in una lista
 /gdpr consulta le norme sul GDPR
 /privs elenca i privilegi utente
 /disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze"""
+
+	admin_help = """Comandi admin... blabla
+	/nuovalista
+	/rimuovilista
+	=== CA$TA THINGS ===
+	/setadmin
+	/unsetadmin
+	/grantlist
+	/revokelist
+	"""
+
+	version = "α0.1.2.I dev"
+
 
 	privs_mex = """privs =-1 -> utente non registrato
 						= 0 -> utente normale
@@ -179,7 +191,7 @@ class UserPermission: #Siply do an AND with the permission
 	CAN_ADD_ADMIN=int('10', 2)
 	CAN_REMOVE_ADMIN=int('100', 2)
 	CHANNEL=int('1000', 2)
-	CREATE_LIST=int('10000', 2)
+	LIST=int('10000', 2)
 
 	def IsAdmin(permission):
 		if (permission & UserPermission.ADMIN) == UserPermission.ADMIN:
@@ -225,16 +237,16 @@ class UserPermission: #Siply do an AND with the permission
 	def RemoveForwardToChannel(permission):
 		return permission & (not(UserPermission.CHANNEL))
 	
-	def CanCreateList(permission):
-		if (permission & UserPermission.CREATE_LIST) == UserPermission.CREATE_LIST:
+	def ListPermission(permission):
+		if (permission & UserPermission.LIST) == UserPermission.LIST:
 			return True
 		return False
 
-	def SetCanCreateList(permission):
-		return permission | UserPermission.CREATE_LIST
+	def SetListPermission(permission):
+		return permission | UserPermission.LIST
 	
-	def RemoveCanCreateList(permission):
-		return permission & (not(UserPermission.CREATE_LIST))
+	def RemoveListPermission(permission):
+		return permission & (not(UserPermission.LIST))
 	
 	
 
@@ -350,9 +362,24 @@ def CreateNewList(name):
 	except:
 		return False
 
-def GetLists():
+def GetLists(limit = Settings.subscriptionRows-1, offset=0):
 	dbC = dbConnection.cursor()
-	dbC.execute('SELECT `Name` FROM Lists')
+	if limit == None:
+		dbC.execute('SELECT * FROM Lists')
+	else:
+		dbC.execute('SELECT * FROM Lists LIMIT ? OFFSET ?', (limit, offset,))
+	res = dbC.fetchall()
+	if len(res) >0:
+		return res
+	return False 
+
+
+def GetListsNames(limit = Settings.subscriptionRows-1, offset=0):
+	dbC = dbConnection.cursor()
+	if limit == None:
+		dbC.execute('SELECT `Name` FROM Lists')
+	else:
+		dbC.execute('SELECT `Name` FROM Lists LIMIT ? OFFSET ?', (limit, offset,))
 	return dbC.fetchall()
 
 def SubscribeUserToList(userID, listID):
@@ -385,7 +412,10 @@ def UnubscribeUserFromList(userID, listID):
 def AvailableListsToUser(userID, limit=Settings.subscriptionRows-1, offset=0):
 	#If user is not in the list
 	dbC = dbConnection.cursor()
-	dbC.execute('SELECT ID, Name FROM Lists WHERE Lists.ID NOT IN (SELECT List FROM Subscriptions WHERE User=?) LIMIT ? OFFSET ?', (userID, limit,offset))
+	if limit == None:
+		dbC.execute('SELECT ID, Name FROM Lists WHERE Lists.ID NOT IN (SELECT List FROM Subscriptions WHERE User=?)')
+	else:
+		dbC.execute('SELECT ID, Name FROM Lists WHERE Lists.ID NOT IN (SELECT List FROM Subscriptions WHERE User=?) LIMIT ? OFFSET ?', (userID, limit,offset))
 	res = dbC.fetchall()
 	if len(res) >0:
 		#User already subscribed
@@ -396,7 +426,10 @@ def AvailableListsToUser(userID, limit=Settings.subscriptionRows-1, offset=0):
 def SubscribedLists(userID, limit=Settings.subscriptionRows-1, offset=0):
 	#If user is not in the list
 	dbC = dbConnection.cursor()
-	dbC.execute('SELECT Lists.ID, Lists.Name FROM Lists INNER JOIN Subscriptions ON Subscriptions.List = Lists.ID WHERE Subscriptions.User=? LIMIT ? OFFSET ?', (userID, limit,offset))
+	if limit == None:
+		dbC.execute('SELECT Lists.ID, Lists.Name FROM Lists INNER JOIN Subscriptions ON Subscriptions.List = Lists.ID WHERE Subscriptions.User=?', (userID,))
+	else:
+		dbC.execute('SELECT Lists.ID, Lists.Name FROM Lists INNER JOIN Subscriptions ON Subscriptions.List = Lists.ID WHERE Subscriptions.User=? LIMIT ? OFFSET ?', (userID, limit,offset))
 	res = dbC.fetchall()
 	if len(res) >0:
 		#User already subscribed
@@ -435,6 +468,15 @@ def GetListSubscribers(listID):
 	if len(res) >0:
 		#User already subscribed
 		return res
+	return False
+
+def DeleteList(listID):
+	#If user is not in the list
+	dbC = dbConnection.cursor()
+	res =dbC.execute('DELETE FROM Lists WHERE ID=?', (listID,))
+	if res != None:
+		CommitDb()
+		return True
 	return False
 
 def UpdateNickname(userID, nickname):
@@ -511,6 +553,14 @@ def IsUserSuperadmin(userNick):
 def send_welcome(message):
 	bot.reply_to(message, constResources.intro_mex)
 
+@bot.message_handler(commands=['adminhelp'])
+def send_admhelp(message):
+	bot.reply_to(message, constResources.admin_help)
+
+@bot.message_handler(commands=['v', 'version'])
+def send_version(message):
+	bot.reply_to(message, "V: " + constResources.version)
+
 # Replies with the static message before
 @bot.message_handler(commands=['privs'])
 def send_privs(message):
@@ -568,8 +618,6 @@ def setBio(message):
 			#There's only one user, as it's supposed to be
 			#Check if the user needs to set a biography
 			if UserStatus.CanEnterBio(user["Status"]):
-				#Asks for the bio
-				#res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE employeeid = ?;', (0, message.text, message.from_user.id,) )
 				res = setNewUserStatus(message.from_user.id, UserStatus.WAITING_FOR_BIOGRAPHY)
 				#Tries to force the user to reply to the message
 				#markup = telebot.types.ForceReply(selective=False)
@@ -591,16 +639,15 @@ def setBio(message):
 #Creazione di una nuova lista
 @bot.message_handler(commands=['newlist', 'nuovalista'])
 def newList(message):
-	if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id)) or UserPermission.CanCreateList(GetUserPermissionsValue(message.from_user.id)):
+	if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id)) or UserPermission.ListPermission(GetUserPermissionsValue(message.from_user.id)):
 		if not message.from_user.is_bot and message.text != "" :
 			# Gets info about the user
 			user = GetUser(message.from_user.id)
 			#Check if the user exists
 			if user == False:
 				#the user does not exist
-				msg = bot.reply_to(message, "Something's wrong here. error code: #R747")
+				bot.reply_to(message, "Something's wrong here. error code: #Q534")
 			else:
-				#Asks for the bio
 				res = setNewUserStatus(message.from_user.id,UserStatus.WAITING_FOR_LIST )
 				markup = telebot.types.InlineKeyboardMarkup()
 				markup.row_width = 1
@@ -608,13 +655,46 @@ def newList(message):
 				msg = bot.reply_to(message, "Per creare una nuova lista, scrivi il nome in chat privata o in un messaggio che mi risponda rispondendomi", reply_markup=markup)
 				dbConnection.commit()
 	else:
+		bot.reply_to(message, "Error 403 - ❌ Unauthorized")
+
+#Creazione di una nuova lista
+@bot.message_handler(commands=['deletelist', 'removelist', 'rimuovilista', 'eliminalista'])
+def deleteListHandler(message):
+	if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id)) or UserPermission.ListPermission(GetUserPermissionsValue(message.from_user.id)):
+		if not message.from_user.is_bot and message.text != "" :
+			# Gets info about the user
+			user = GetUser(message.from_user.id)
+			#Check if the user exists
+			if user == False:
+				#the user does not exist
+				msg = bot.reply_to(message, "Something's wrong here. error code: #J258")
+			else:
+				#Asks for the bio
+				#need to send message with a list
+				liste = GetLists()
+				markup = telebot.types.InlineKeyboardMarkup()
+				#Print the lists as inline buttons
+				msg = "Random message padding"
+				if liste == False:#TODO test
+					msg = "Al momento non è presente nessuna lista.\nSi prega di riprovare in seguito."
+				else:
+					for ulist in liste:
+						markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="rlist-"+str(ulist["ID"])))
+					  
+					if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
+						markup.row(telebot.types.InlineKeyboardButton(" ", callback_data="ignore"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"orlist-"+str(Settings.subscriptionRows-1)))
+						#⬅️ ➡️ 
+				msg = bot.reply_to(message, msg, reply_markup=markup)
+				#SubscribeUserToList()
+				
+	else:
 		msg = bot.reply_to(message, "Error 403 - ❌ Unauthorized")
 
 #Lista delle liste
 @bot.message_handler(commands=['lists', 'liste'])
 def showLists(message):
-	msg = "Ecco le liste esistenti al momento:\n"
-	liste = GetLists()
+	liste = GetListsNames(limit=None)
+	msg = "Al momento esistono " + str(len(liste))+ " liste; eccole qui:\n"
 	for list in liste:
 		msg = msg + list[0] + "\n"
 	if len(liste) == 0:
@@ -775,7 +855,7 @@ def grantListCreationPermissionHandler(message):
 					bot.reply_to(message, "❌ Sembra che l'utente non sia registrato.\nÈ opportuno farlo registrare prima di promuoverlo e permettergli di creare liste!")
 					return
 				newUserpermission = GetUserPermissionsValue(newUserId)
-				newUserpermission = UserPermission.SetCanCreateList(newUserpermission)
+				newUserpermission = UserPermission.SetListPermission(newUserpermission)
 				res = SetUserPermissionsValue(newUserId, newUserpermission)
 				if res == True:
 					#Say OK
@@ -804,7 +884,7 @@ def revokeListCreationPermissionHandler(message):
 					bot.reply_to(message, "❌ Sembra che l'utente non sia registrato.\nÈ opportuno farlo registrare prima di promuoverlo ad amministratore!")
 					return
 				oldUserpermission = GetUserPermissionsValue(oldUserId)
-				oldUserpermission = UserPermission.RemoveCanCreateList(oldUserpermission)
+				oldUserpermission = UserPermission.RemoveListPermission(oldUserpermission)
 				res = SetUserPermissionsValue(oldUserId, oldUserpermission)
 				if res == True:
 					#Say OK
@@ -832,7 +912,7 @@ def pingHandler(message):
 def pingHandler(message):
 	if IsUserSuperadmin(message.from_user.username) or (GetUser(message.from_user.id) != False and UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id))):
 		bot.reply_to(message, "Autodestruction sequence initialized... \n💥 Poof! ✨")
-		sys.exit(0)
+		sys.exit(10)
 
 @bot.message_handler(func=lambda m: True)
 def genericMessageHandler(message):
@@ -990,6 +1070,85 @@ def callback_query(call):
 								return
 					#Just go away
 					bot.answer_callback_query(call.id, text="Just go away", show_alert=False, cache_time=999999)
+
+		elif "orlist-" in call.data:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
+				if user["Status"] == UserStatus.ACTIVE :
+					#Show next n rows + offset, osub-{offset}
+					#Safe data checks
+					splittedString = call.data.split('-')
+					if len(splittedString) == 2:
+						if splittedString[1].isdigit():
+							actualOffset=int(splittedString[1])
+							if actualOffset%(Settings.subscriptionRows-1) == 0:
+
+
+								liste = GetLists(offset=int(actualOffset))
+								markup = telebot.types.InlineKeyboardMarkup()
+								#Print the lists as inline buttons
+								msg = "Random message padding"
+								if liste == False:#TODO test
+									msg = "Al momento non è presente nessuna lista.\nSi prega di riprovare in seguito."
+								else:
+									for ulist in liste:
+										markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="rlist-"+str(ulist["ID"])))
+									
+									if int(actualOffset) >=Settings.subscriptionRows -1 or GetLists(limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
+										previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"orlist-"+str(int(actualOffset) - Settings.subscriptionRows+1))
+										nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"orlist-"+str(int(actualOffset) + Settings.subscriptionRows-1))
+										emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
+										leftButton, rightButton = emptyArrow,emptyArrow
+										#Check if there are more list
+										if GetLists(limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
+											rightButton = nextArrow
+										if actualOffset - Settings.subscriptionRows +2 > 0:
+											leftButton = previousArrow
+										if leftButton != rightButton:
+											markup.row(leftButton, rightButton)
+								#msg = bot.edit_message_reply_markup(call, msg, reply_markup=markup)
+								bot.edit_message_text(msg , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
+								return
+					#Just go away
+					bot.answer_callback_query(call.id, text="Just go away", show_alert=False, cache_time=999999)
+
+		elif "crlist-" in call.data:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
+				if user["Status"] == UserStatus.ACTIVE :
+					splittedString = call.data.split('-')
+					if len(splittedString) == 2:
+						if splittedString[1].isdigit():
+							listID=int(splittedString[1])
+							#Remove subscription
+							success = DeleteList(listID)
+							if success:
+								bot.answer_callback_query(call.id, text="✅ Eliminata", show_alert=False)
+							else:
+								bot.answer_callback_query(call.id, text="❌ Si è verificato un errore", show_alert=False)
+							#Edit message back to list
+							nc = call
+							nc.data = "orlist-0"
+							callback_query(nc)
+							return 
+			bot.answer_callback_query(call.id, text="Just go away", show_alert=False, cache_time=999999)
+
+
+		elif "rlist-" in call.data:
+			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
+				if user["Status"] == UserStatus.ACTIVE :
+					#Show next n rows + offset, osub-{offset}
+					#Safe data checks
+					splittedString = call.data.split('-')
+					if len(splittedString) == 2:
+						if splittedString[1].isdigit():
+							listID=int(splittedString[1])
+							msg="Sei sicuro di voler eliminare definitivamente la lista \"" + GetListName(listID) + "\"?"
+							markup = telebot.types.InlineKeyboardMarkup()
+							markup.row(
+								telebot.types.InlineKeyboardButton(f"⬅️ No", callback_data=f"orlist-0"),
+								telebot.types.InlineKeyboardButton(f"🗑 Elimina", callback_data=f"crlist-"+str(listID))
+							)
+							bot.edit_message_text(msg , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
+							return
 
 		elif "cusub-" in call.data:
 			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
