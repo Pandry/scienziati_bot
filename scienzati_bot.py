@@ -967,7 +967,10 @@ def revokeListCreationPermissionHandler(message):
 @bot.message_handler(commands=['ping'])
 def pingHandler(message):
 	if IsUserSuperadmin(message.from_user.username) or (GetUser(message.from_user.id) != False and UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id))):
-		bot.reply_to(message, "🏓 Pong!")
+		
+		markup = telebot.types.InlineKeyboardMarkup()
+		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+		bot.reply_to(message, "🏓 Pong!", reply_markup=markup )
 
 @bot.message_handler(commands=['die', 'crash'])
 def pingHandler(message):
