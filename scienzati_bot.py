@@ -109,7 +109,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.2G dev"
+	version = "α0.1.2.2K dev"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -580,7 +580,6 @@ def send_privs(message):
 		return
 
 	userPermission = GetUserPermissionsValue(userid)
-	markup = telebot.types.InlineKeyboardMarkup()
 	msg = "Ecco i privilegi dell'utente @" + GetUserNickname(userid) + ":\n ⚙️ Ranks\nSupreme admin: "
 	if IsUserSuperadmin(GetUserNickname(userid)):
 		msg = msg + "✅ Sì"
