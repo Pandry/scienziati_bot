@@ -740,7 +740,7 @@ def deleteListHandler(message):
 					for ulist in liste:
 						markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="rlist-"+str(ulist["ID"])))
 					rightbutton = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-					if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
+					if GetLists(limit=1, offset=int(Settings.subscriptionRows-1)) != False:
 						rightbutton = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"orlist-"+str(Settings.subscriptionRows-1))
 					markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"), rightbutton)
 						#⬅️ ➡️ 
