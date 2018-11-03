@@ -535,6 +535,51 @@ def IsUserSuperadmin(userNick):
 	return userNick.lower() in Settings.SupremeAdmins
 
 
+def getUserPermissionText(userid):
+	userPermission = GetUserPermissionsValue(userid)
+	msg = "Ecco i privilegi dell'utente @" + GetUserNickname(userid) + ":\n ⚙️ Ranks\nSupreme admin: "
+	if IsUserSuperadmin(GetUserNickname(userid)):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Admin: "
+	if UserPermission.IsAdmin(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "\n📝Privileges\n"
+	msg = msg +  "Gestione liste: "
+	if UserPermission.ListPermission(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Aggiunta amministratori: "
+	if UserPermission.CanAddAdmin(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Eliminazione amministratori: "
+	if UserPermission.CanRemoveAdmin(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Inoltro al canale: "
+	if UserPermission.CanForwardToChannel(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	return msg
+
 ###
 # Bot functions
 ###
@@ -579,52 +624,8 @@ def send_privs(message):
 	if GetUser(userid) == False:
 		bot.reply_to(message, "Non sei presente in database, perciò non è possibile conoscere il tuo livello di privilegi.", reply_markup=markup)
 		return
-
-	userPermission = GetUserPermissionsValue(userid)
-	msg = "Ecco i privilegi dell'utente @" + GetUserNickname(userid) + ":\n ⚙️ Ranks\nSupreme admin: "
-	if IsUserSuperadmin(GetUserNickname(userid)):
-		msg = msg + "✅ Sì"
-	else:
-		msg = msg + "❌ Nope"
-	msg = msg + "\n"
-
-	msg = msg + "Admin: "
-	if UserPermission.IsAdmin(userPermission):
-		msg = msg + "✅ Sì"
-	else:
-		msg = msg + "❌ Nope"
-	msg = msg + "\n"
-
-	msg = msg + "\n📝Privileges\n"
-	msg = msg +  "Gestione liste: "
-	if UserPermission.ListPermission(userPermission):
-		msg = msg + "✅ Sì"
-	else:
-		msg = msg + "❌ Nope"
-	msg = msg + "\n"
-
-	msg = msg + "Aggiunta amministratori: "
-	if UserPermission.CanAddAdmin(userPermission):
-		msg = msg + "✅ Sì"
-	else:
-		msg = msg + "❌ Nope"
-	msg = msg + "\n"
-
-	msg = msg + "Eliminazione amministratori: "
-	if UserPermission.CanRemoveAdmin(userPermission):
-		msg = msg + "✅ Sì"
-	else:
-		msg = msg + "❌ Nope"
-	msg = msg + "\n"
-
-	msg = msg + "Inoltro al canale: "
-	if UserPermission.CanForwardToChannel(userPermission):
-		msg = msg + "✅ Sì"
-	else:
-		msg = msg + "❌ Nope"
 	
-
-	bot.reply_to(message,  msg, reply_markup=markup)
+	bot.reply_to(message,  getUserPermissionText(userid), reply_markup=markup)
 
 # Replies with the static message before
 @bot.message_handler(commands=['gdpr'])
@@ -1340,9 +1341,18 @@ def getUserBioInlineQuery(inline_query):
 	usersIDs = getUsersIdLike(user)
 	for userid in usersIDs:
 		userNick = GetUserNickname(userid[0])
+		userBio = GetUserBio(userid[0])
+		if userBio != None:
+			responses.append(
+				telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s Bio: " + userBio,
+														telebot.types.InputTextMessageContent(userNick[0].upper() + userNick[1:] + "'s Biography is \"" +userBio + "\""))
+			)
 		responses.append(
-			telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s Bio: " + GetUserBio(userid[0]), telebot.types.InputTextMessageContent(userNick[0].upper() + userNick[1:] + "'s Biography is \"" +GetUserBio(userid[0]) + "\""))
-		) 
+			telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s permissions",
+													telebot.types.InputTextMessageContent(getUserPermissionText(userid[0])))
+		)
+		
+		
 	bot.answer_inline_query(inline_query.id, responses)
     # Query message is text
 ###
