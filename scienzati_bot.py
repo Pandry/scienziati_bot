@@ -637,7 +637,7 @@ def send_gdrp(message):
 	bot.reply_to(message, constResources.gdpr_message)
 
 ### Messaggio di Iscrizione 
-@bot.message_handler(commands=['iscrivi'])
+@bot.message_handler(commands=['iscrivi', 'iscriviti'])
 def start_user_registration(message):
 	if not message.from_user.is_bot and message.text != "" :
 		# Tries to see 
