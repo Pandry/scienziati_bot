@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.10 dev 1"
+	version = "α0.1.2.11"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -1046,7 +1046,9 @@ def genericMessageHandler(message):
 			#TODO check for ASCII ONLY (RegEx?), replace spaces with underscores, 
 			listName = message.text.lower()
 			markup = telebot.types.InlineKeyboardMarkup()
-			telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis")
+			markup.row(telebot.types.InlineKeyboardButton("🗑 Elimina questo messaggio", callback_data="deleteDis"))
+			markup.row(telebot.types.InlineKeyboardButton("✅  Termina creazione lista", callback_data="activeMeBack"))
+			
 			p = re.compile(r'[a-z0-9_\-]+', re.IGNORECASE)
 			if message.chat.type == "private":
 				if not p.match(listName):
@@ -1144,6 +1146,12 @@ def callback_query(call):
 		elif call.data.startswith("deleteDis"): 
 			userPerm = GetUserPermissionsValue(call.from_user.id)
 			if (IsUserSuperadmin(call.from_user.username) or UserPermission.IsAdmin(userPerm)) or call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
+				bot.delete_message(call.message.chat.id , call.message.message_id)
+		elif call.data.startswith("activeMeBack"): 
+			userStatus = GetUserStatusValue(call.from_user.id)
+			if UserStatus.IsWaitingForBio(userStatus) or UserStatus.IsWaitingForListName(userStatus):
+				setNewUserStatus(call.from_user.id, UserStatus.ACTIVE)
+				bot.answer_callback_query(call.id, text="✅ Fatto", show_alert=False)
 				bot.delete_message(call.message.chat.id , call.message.message_id)
 
 		elif call.data.startswith( "ousub-"):
