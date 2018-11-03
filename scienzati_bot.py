@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.1D dev"
+	version = "α0.1.2.1"
 
 
 	privs_mex = """privs =-1 -> utente non registrato
@@ -927,12 +927,23 @@ def genericMessageHandler(message):
 				dbC = dbConnection.cursor()
 				res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE ID = ?', (UserStatus.ACTIVE, message.text, message.from_user.id,) )
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
+				bot.delete_message(message.chat.id , message.reply_to_message.message_id)
+
 				#Tries to force the user to reply to the message
 			#TODO: Not sure about the order - needs to be checked
 			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
 				dbC = dbConnection.cursor()
 				res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE ID = ?', (UserStatus.ACTIVE, message.text, message.from_user.id,) )
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
+				bot.delete_message(message.chat.id , message.reply_to_message.message_id)
+
+
+
+
+
+
+
+
 		#Check for list
 		elif user["Status"] == UserStatus.WAITING_FOR_LIST:
 			#User is creating a new list
@@ -1014,7 +1025,9 @@ def callback_query(call):
 					success = abortNewBio(call.from_user.id)
 					if success:
 						markup = telebot.types.InlineKeyboardMarkup()
-						bot.edit_message_text("Annullato." , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
+						bot.answer_callback_query(call.id, text="❌ Annullato", show_alert=True)
+						bot.delete_message(call.message.chat.id , call.message.message_id)
+						#bot.edit_message_text("Annullato." , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 				else:
 					bot.delete_message(call.message.chat.id , call.message.message_id)
 		#Check if is to abort list creation
@@ -1022,12 +1035,13 @@ def callback_query(call):
 			#Check if the guy who pressed is the same who asked to set the bio
 			if call.message.reply_to_message != None and call.from_user.id == call.message.reply_to_message.from_user.id:
 				#Check that the user needs to set the bio
-				
 				if user["Status"] == UserStatus.WAITING_FOR_LIST :
 					success = abortNewList(call.from_user.id)
 					if success:
 						markup = telebot.types.InlineKeyboardMarkup()
-						bot.edit_message_text("Annullato." , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
+						bot.answer_callback_query(call.id, text="❌ Annullato", show_alert=True)
+						bot.delete_message(call.message.chat.id , call.message.message_id)
+						#bot.edit_message_text("Annullato." , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 				else:
 					bot.delete_message(call.message.chat.id , call.message.message_id)
 		elif "deleteDis" in call.data: 
