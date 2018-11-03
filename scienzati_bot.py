@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.2B dev"
+	version = "α0.1.2.2E dev"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -513,6 +513,7 @@ def getUsersIdLike(userNick):
 	return False
 
 def getUserId(userNick):
+	userNick = userNick.replace('@','').lower()
 	dbC = dbConnection.cursor()
 	dbC.execute('SELECT `ID` FROM Users WHERE `Nickname`= ?;', (userNick,))
 	res = dbC.fetchone()
@@ -561,9 +562,16 @@ def send_version(message):
 # Replies with the static message before
 @bot.message_handler(commands=['privs'])
 def send_privs(message):
+	args = message.text.split(' ')
+	userid = message.from_user.id
+	if len(args) == 2:
+		reqUserid = getUserId(args[1])
+		if reqUserid != False:
+			userid = reqUserid
+
+	userPermission = GetUserPermissionsValue(userid)
 	markup = telebot.types.InlineKeyboardMarkup()
-	userPermission = GetUserPermissionsValue(message.from_user.id)
-	msg = "⚙️ Ranks\nSupreme admin: "
+	msg = "Ecco i privilegi dell'utente @" + GetUserNickname(userid) + ":\n ⚙️ Ranks\nSupreme admin: "
 	if IsUserSuperadmin(message.from_user.username):
 		msg = msg + "✅ Sì"
 	else:
@@ -889,7 +897,7 @@ def grantListCreationPermissionHandler(message):
 		if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(userPermission):
 			args = message.text.split(' ')
 			if len(args) == 2:
-				newUserNickname = args[1].replace('@','').lower()
+				newUserNickname = userNickname
 				newUserId = getUserId(newUserNickname)
 				if newUserId == False:
 					#It looks like there's no user called this way
