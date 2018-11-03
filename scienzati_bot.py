@@ -471,7 +471,7 @@ def DeleteList(listID):
 
 def UpdateNickname(userID, nickname):
 	dbC = dbConnection.cursor()
-	res = dbC.execute('UPDATE Users SET Nickname=? WHERE ID = ?', (nickname, userID, ))
+	res = dbC.execute('UPDATE Users SET Nickname=? WHERE ID = ?', (nickname.lower().replace('@',''), userID, ))
 	if res:
 		CommitDb()
 		return True
@@ -748,6 +748,14 @@ def deleteListHandler(message):
 	else:
 		msg = bot.reply_to(message, "Error 403 - ❌ Unauthorized")
 
+@bot.message_handler(commands=['del', 'delete'])
+def deleteBotMessage(message):
+	userPerm = GetUserPermissionsValue(message.from_user.id)
+	if IsUserSuperadmin(message.from_user.username) or UserPermission.IsAdmin(userPerm):
+		if message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
+			bot.delete_message(message.chat.id , message.message_id)
+
+
 #Lista delle liste
 @bot.message_handler(commands=['lists', 'liste'])
 def showLists(message):
@@ -1002,13 +1010,6 @@ def genericMessageHandler(message):
 				res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE ID = ?', (UserStatus.ACTIVE, message.text, message.from_user.id,) )
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
 				bot.delete_message(message.chat.id , message.reply_to_message.message_id)
-
-
-
-
-
-
-
 
 		#Check for list
 		elif user["Status"] == UserStatus.WAITING_FOR_LIST:
