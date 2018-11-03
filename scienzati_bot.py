@@ -596,11 +596,8 @@ def start_user_registration(message):
 			else:
 				msg = bot.reply_to(message, "Errore nella creazione del record")
 
-
 		# this is to define step-by-step subscription
 		#bot.register_next_step_handler(msg, first_registration)
-
-
 
 
 ### Aggioramento/ impostaizone bio
@@ -994,7 +991,6 @@ def genericMessageHandler(message):
 				elif message.chat.id == Settings.OTGroup:
 					#Increment OT group messages cunt
 						IncrOTGroupMessagesCount(message.from_user.id)
-		
 		dbConnection.commit()
 
 
@@ -1073,29 +1069,6 @@ def callback_query(call):
 								markup.row(leftButton, rightButton)
 								bot.edit_message_text("Ecco un elenco delle liste attualmente alle quali sei iscritto al momento:\n(Per rimuovere la sottoscrizione, è sufficiente \"tapparla\" e confermare)" , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 								return
-
-
-
-
-
-								"""
-								if int(actualOffset) >=Settings.subscriptionRows -1 or SubscribedLists(call.from_user.id, limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
-									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"ousub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
-									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"ousub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
-									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-									deletePagination = telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis")
-									leftButton, rightButton = deletePagination,emptyArrow
-									#Check if there are more list
-									if SubscribedLists(call.from_user.id, limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
-										rightButton = nextArrow
-									if actualOffset - Settings.subscriptionRows +2 > 0:
-										leftButton = previousArrow
-									if leftButton != rightButton:
-										markup.row(leftButton, rightButton)
-								#msg = bot.reply_to(message, msg, reply_markup=markup)
-								bot.edit_message_text("Ecco un elenco delle liste attualmente alle quali sei iscritto al momento:\n(Per rimuovere la sottoscrizione, è sufficiente \"tapparla\" e confermare)" , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
-								return
-								"""
 					#Just go away
 					bot.answer_callback_query(call.id, text="Just go away", show_alert=False, cache_time=999999)
 
@@ -1120,12 +1093,6 @@ def callback_query(call):
 								else:
 									for ulist in liste:
 										markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="rlist-"+str(ulist["ID"])))
-
-
-
-
-
-
 									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"orlist-"+str(int(actualOffset) - Settings.subscriptionRows+1))
 									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"orlist-"+str(int(actualOffset) + Settings.subscriptionRows-1))
 									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
@@ -1138,21 +1105,6 @@ def callback_query(call):
 										if actualOffset - Settings.subscriptionRows +2 > 0:
 											leftButton = previousArrow
 									markup.row(leftButton, rightButton)
-
-									"""	
-									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"orlist-"+str(int(actualOffset) - Settings.subscriptionRows+1))
-									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"orlist-"+str(int(actualOffset) + Settings.subscriptionRows-1))
-									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-									deletePagination = telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis")
-									leftButton, rightButton = deletePagination,emptyArrow
-									if int(actualOffset) >=Settings.subscriptionRows -1 or GetLists(limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
-										#Check if there are more list
-										if GetLists(limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
-											rightButton = nextArrow
-										if actualOffset - Settings.subscriptionRows +2 > 0:
-											leftButton = previousArrow
-									markup.row(leftButton, rightButton)
-									"""
 								#msg = bot.edit_message_reply_markup(call, msg, reply_markup=markup)
 								bot.edit_message_text(msg , call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 								return
@@ -1269,28 +1221,6 @@ def callback_query(call):
 									if actualOffset - Settings.subscriptionRows +2 > 0:
 										leftButton = previousArrow
 								markup.row(leftButton, rightButton)
-
-
-
-
-
-
-
-								"""
-								if int(actualOffset) >=Settings.subscriptionRows -1 or AvailableListsToUser(call.from_user.id, limit=1, offset=int( actualOffset + Settings.subscriptionRows-1)) != False:
-									previousArrow = telebot.types.InlineKeyboardButton(f"⬅️", callback_data=f"osub-"+str(int(actualOffset) - Settings.subscriptionRows+1))
-									nextArrow = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(int(actualOffset) + Settings.subscriptionRows-1))
-									emptyArrow = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-									deletePagination = telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis")
-									leftButton, rightButton = deletePagination,emptyArrow
-									#Check if there are more list
-									if AvailableListsToUser(call.from_user.id, limit=1, offset=int(actualOffset + Settings.subscriptionRows-1)) != False:
-										rightButton = nextArrow
-									if actualOffset - Settings.subscriptionRows +2 > 0:
-										leftButton = previousArrow
-									if leftButton != rightButton:
-										markup.row(leftButton, rightButton)
-								"""
 								#msg = bot.reply_to(message, msg, reply_markup=markup)
 								bot.edit_message_reply_markup(call.message.chat.id , call.message.message_id, call.id, reply_markup=markup)
 								return
