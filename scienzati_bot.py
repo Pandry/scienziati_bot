@@ -734,11 +734,13 @@ def deleteListHandler(message):
 				if liste == False:#TODO test
 					msg = "Al momento non è presente nessuna lista.\nSi prega di riprovare in seguito."
 				else:
+					
 					for ulist in liste:
 						markup.row(telebot.types.InlineKeyboardButton(ulist["Name"], callback_data="rlist-"+str(ulist["ID"])))
-					  
+					rightbutton = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
 					if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
-						markup.row(telebot.types.InlineKeyboardButton(" ", callback_data="ignore"), telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"orlist-"+str(Settings.subscriptionRows-1)))
+						rightbutton = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"orlist-"+str(Settings.subscriptionRows-1))
+					markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"), rightbutton)
 						#⬅️ ➡️ 
 				msg = bot.reply_to(message, msg, reply_markup=markup)
 				#SubscribeUserToList()
