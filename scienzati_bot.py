@@ -5,7 +5,6 @@ import sqlite3
 import random
 import re
 import sys
-import str
 
 #Settings class
 
@@ -1053,7 +1052,7 @@ def genericMessageHandler(message):
 
 			if (message.chat.type == "group" or message.chat.type == "supergroup") and not message.from_user.is_bot and message.text != "":
 				if message.text[0] == "#" or message.text[0] == "@" or message.text[0] == "." or message.text[0] == "!":
-					listName = message.text.strip()[1:].lower()
+					listName = message.text.strip()[1:].lower().split(' ')[0]
 					if ListExists(listName):
 						users = GetListSubscribers(GetListID(listName))
 						if users != False:
@@ -1075,9 +1074,6 @@ def genericMessageHandler(message):
 					#Increment OT group messages cunt
 						IncrOTGroupMessagesCount(message.from_user.id)
 		dbConnection.commit()
-
-
-
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
