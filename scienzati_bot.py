@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.9"
+	version = "α0.1.2.10 dev 1"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -771,6 +771,27 @@ def showLists(message):
 	msg = "Al momento esistono " + str(len(liste))+ " liste; eccole qui:\n"
 	for list in liste:
 		msg = msg + list[0] + "\n"
+	if len(liste) == 0:
+		msg = "Al momento non sono presenti liste"
+	bot.reply_to(message, msg, reply_markup=markup)
+
+#Lista delle liste
+@bot.message_handler(commands=['completelist'])
+def completeLists(message):
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+	#liste = GetListsNames(limit=None)
+	liste = GetLists(limit = None)
+	msg = "Al momento esistono " + str(len(liste))+ " liste; eccole qui:\n"
+	for list in liste:
+		msg = msg + list["Name"] + "\n"
+		users = GetListSubscribers(list["ID"] )
+		for user in users[:-1]:
+			msg = msg + "║" + " " + GetUserNickname(user[0]) + "\n"
+		msg = msg + "╚" + " " + GetUserNickname(users[len(users)-1][0]) + "\n"
+
+		
+		msg = msg + "\n"
 	if len(liste) == 0:
 		msg = "Al momento non sono presenti liste"
 	bot.reply_to(message, msg, reply_markup=markup)
