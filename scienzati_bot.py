@@ -110,16 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.1"
-
-
-	privs_mex = """privs =-1 -> utente non registrato
-						= 0 -> utente normale
-						= 1 -> utente abituale
-						= 2 -> utente assiduo
-						= 3 -> utente storico (puo' inoltrare al canale, puo' creare nuove liste)
-						= 4 -> amministratore
-		       		 = 5 -> fondatore"""
+	version = "α0.1.2.2B dev"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -551,20 +542,72 @@ def IsUserSuperadmin(userNick):
 # This is the function called when the bot is started or the help commands are sent
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-	bot.reply_to(message, constResources.intro_mex)
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+	bot.reply_to(message, constResources.intro_mex, reply_markup=markup)
 
 @bot.message_handler(commands=['adminhelp'])
 def send_admhelp(message):
-	bot.reply_to(message, constResources.admin_help)
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+	bot.reply_to(message, constResources.admin_help, reply_markup=markup)
 
 @bot.message_handler(commands=['v', 'version'])
 def send_version(message):
-	bot.reply_to(message, "V: " + constResources.version)
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+	bot.reply_to(message,  "V: " + constResources.version, reply_markup=markup)
 
 # Replies with the static message before
 @bot.message_handler(commands=['privs'])
 def send_privs(message):
-	bot.reply_to(message, constResources.privs_mex)
+	markup = telebot.types.InlineKeyboardMarkup()
+	userPermission = GetUserPermissionsValue(message.from_user.id)
+	msg = "⚙️ Ranks\nSupreme admin: "
+	if IsUserSuperadmin(message.from_user.username):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Admin: "
+	if UserPermission.IsAdmin(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "\n📝Privileges\n"
+	msg = msg +  "Gestione liste: "
+	if UserPermission.ListPermission(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Aggiunta amministratori: "
+	if UserPermission.CanAddAdmin(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Eliminazione amministratori: "
+	if UserPermission.CanRemoveAdmin(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	msg = msg + "\n"
+
+	msg = msg + "Inoltro al canale: "
+	if UserPermission.CanForwardToChannel(userPermission):
+		msg = msg + "✅ Sì"
+	else:
+		msg = msg + "❌ Nope"
+	
+
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+	bot.reply_to(message,  msg, reply_markup=markup)
 
 # Replies with the static message before
 @bot.message_handler(commands=['gdpr'])
