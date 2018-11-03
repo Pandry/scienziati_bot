@@ -92,10 +92,9 @@ class constResources:
 Sei confuso? 
 Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 /iscriviti per iscriverti al database di utenti e per partecipare alle liste sugli interessi
-/aderisci per iscriverti ad una lista, puoi usare anche: /partecipa e /sottoscrivi
+/aderisci per iscriverti ad una lista, puoi usare anche: /partecipa, /registrati e /sottoscrivi
 /bio per scrivere qualcosa su di te
 /liste per scoprire le liste già presenti
-/registrati per registrarti in una lista
 /gdpr consulta le norme sul GDPR
 /privs elenca i privilegi utente
 /disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze"""
