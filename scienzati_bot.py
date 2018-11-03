@@ -713,7 +713,7 @@ def newList(message):
 				res = setNewUserStatus(message.from_user.id,UserStatus.WAITING_FOR_LIST )
 				markup = telebot.types.InlineKeyboardMarkup()
 				markup.row_width = 1
-				markup.add(telebot.types.InlineKeyboardButton('❌ Annulla', callback_data=f"aList"))
+				markup.add(telebot.types.InlineKeyboardButton('❌ Termina / Annulla', callback_data=f"aList"))
 				msg = bot.reply_to(message, "Per creare una nuova lista, scrivi il nome in chat privata o in un messaggio che mi risponda rispondendomi", reply_markup=markup)
 				dbConnection.commit()
 	else:
