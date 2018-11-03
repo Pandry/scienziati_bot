@@ -1335,7 +1335,7 @@ def callback_query(call):
 
 @bot.inline_handler(func=lambda chosen_inline_result: True)
 def getUserBioInlineQuery(inline_query):
-	user = inline_query.query.lower()
+	user = inline_query.query.lower().replace('@', '')
 	responses = []
 	usersIDs = getUsersIdLike(user)
 	for userid in usersIDs:
@@ -1354,7 +1354,7 @@ def getUserBioInlineQuery(inline_query):
 		lists = SubscribedLists(userid, limit=None)
 		msg = userNick[0].upper() + userNick[1:] + " is not subscribed to any list yet! :c"
 		if lists != False:
-			msg = userNick[0].upper() + userNick[1:] + "is subscribed to those lists: \n"
+			msg = userNick[0].upper() + userNick[1:] + " is subscribed to those lists: \n"
 			for lst in lists:
 				msg = msg + "#" + lst["Name"] + ", "
 			msg = msg[:len(msg)-2]
