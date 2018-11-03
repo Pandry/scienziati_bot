@@ -1045,27 +1045,29 @@ def genericMessageHandler(message):
 			#User is creating a new list
 			#TODO check for ASCII ONLY (RegEx?), replace spaces with underscores, 
 			listName = message.text.lower()
+			markup = telebot.types.InlineKeyboardMarkup()
+			telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis")
 			p = re.compile(r'[a-z0-9_\-]+', re.IGNORECASE)
 			if message.chat.type == "private":
 				if not p.match(listName):
-					bot.reply_to(message, "Qualcosa è andato storto :c\n Il nome sembra contenre caratteri non permessi. Sono permesse solo lettere, numeri, underscores(_) e trattini")
+					bot.reply_to(message, "Qualcosa è andato storto :c\n Il nome sembra contenre caratteri non permessi. Sono permesse solo lettere, numeri, underscores(_) e trattini", reply_markup=markup )
 					return
 				success = CreateNewList(listName)
 				if success:
-					msg = bot.reply_to(message, "Lista creata con successo!")
+					msg = bot.reply_to(message, "Lista creata con successo!", reply_markup=markup)
 				else:
-					msg = bot.reply_to(message, "Qualcosa è andato storto :c\n Sei sicuro che non esista già una lista con lo stesso nome?")
+					msg = bot.reply_to(message, "Qualcosa è andato storto :c\n Sei sicuro che non esista già una lista con lo stesso nome?", reply_markup=markup)
 				#Tries to force the user to reply to the message
 				
 			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
 				if not p.match(listName):
-					bot.reply_to(message, "Qualcosa è andato storto :c\n Il nome sembra contenre caratteri non permessi. Sono permesse solo lettere, numeri, underscores(_) e trattini")
+					bot.reply_to(message, "Qualcosa è andato storto :c\n Il nome sembra contenre caratteri non permessi. Sono permesse solo lettere, numeri, underscores(_) e trattini", reply_markup=markup)
 					return
 				success = CreateNewList(listName)
 				if success:
-					msg = bot.reply_to(message, "Lista creata con successo!")
+					msg = bot.reply_to(message, "Lista creata con successo!", reply_markup=markup)
 				else:
-					msg = bot.reply_to(message, "Qualcosa è andato storto :c\n Sei sicuro che non esista già una lista con lo stesso nome?")
+					msg = bot.reply_to(message, "Qualcosa è andato storto :c\n Sei sicuro che non esista già una lista con lo stesso nome?", reply_markup=markup)
 		
 		else:
 			#Normal message, increment message counter
