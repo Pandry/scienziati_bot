@@ -692,7 +692,8 @@ def start_user_registration(message):
 			#bot.reply_to(message, "creazione nuovo record utente...")
 			#Insert 
 			dbC = dbConnection.cursor()
-			res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (message.from_user.id, message.from_user.username, UserStatus.USER_JUST_CREATED,) )
+			#res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (message.from_user.id, message.from_user.username, UserStatus.USER_JUST_CREATED,) )
+			res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (message.from_user.id, message.from_user.username, UserStatus.ACTIVE,) )
 			dbConnection.commit()
 			if res:
 				msg = bot.reply_to(message, "Congratulazioni, ti sei registrato correttamente! Ora puoi procedere ad inserire la tua biografia attraverso il comando /bio")
@@ -701,8 +702,14 @@ def start_user_registration(message):
 
 		# this is to define step-by-step subscription
 		#bot.register_next_step_handler(msg, first_registration)
+@bot.message_handler(commands=['nudes', 'sendnudes'])
+def sendNusedFromPandry(message):
+	bot.forward_message(message.chat.id, 14092073, 1895)
 
-
+@bot.message_handler(commands=['msginfo'])
+def infohandler(message):
+	if message.reply_to_message != None:
+		msg = bot.reply_to(message, "ID " + str(message.reply_to_message.message_id))
 ### Aggioramento/ impostaizone bio
 @bot.message_handler(commands=['bio', 'setbio'])
 def setBio(message):
