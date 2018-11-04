@@ -178,11 +178,26 @@ class UserStatus: #Enum emulator
 # x0xx -  flag - 1 = can post to channel
 #
 class UserPermission: #Siply do an AND with the permission
-	ADMIN=int('1', 2)
-	CAN_ADD_ADMIN=int('10', 2)
-	CAN_REMOVE_ADMIN=int('100', 2)
-	CHANNEL=int('1000', 2)
-	LIST=int('10000', 2)
+	PermissionConut = 0
+
+	ADMIN=int('1' + '0'*PermissionConut, 2)
+	PermissionConut +=1 # DO NOT FUCKING REMOVE
+	# THIS CRAP DOES NOT HAVE A ++ OPERATOR
+	# SET ONE OF THOSE FOR EVERY PERMISSION YOU CREATE
+	# #RAGETIME
+	# ~ Pandry
+
+	CAN_ADD_ADMIN=int('1' + '0'*PermissionConut, 2)
+	PermissionConut +=1
+
+	CAN_REMOVE_ADMIN=int('1' + '0'*PermissionConut, 2)
+	PermissionConut +=1
+
+	CHANNEL=int('1' + '0'*PermissionConut, 2)
+	PermissionConut +=1
+
+	LIST=int('1' + '0'*PermissionConut, 2)
+	PermissionConut +=1
 
 	def IsAdmin(permission):
 		if (permission & UserPermission.ADMIN) == UserPermission.ADMIN:
