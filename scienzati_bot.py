@@ -496,6 +496,14 @@ def GetUserBio(userID):
 		return res[0]
 	return False
 
+def SetUserBio(userID, newBio):
+	dbC = dbConnection.cursor()
+	res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE ID = ?', (UserStatus.ACTIVE, newBio, userID,) )
+	if res != None:
+		CommitDb()
+		return True
+	return False
+
 def abortNewList(userID):
 	dbC = dbConnection.cursor()
 	res = dbC.execute('UPDATE Users SET Status=? WHERE ID = ?', (UserStatus.ACTIVE, userID,) )
@@ -1029,16 +1037,14 @@ def genericMessageHandler(message):
 		if user["Status"] == UserStatus.WAITING_FOR_BIOGRAPHY:
 			#User is setting the Bio
 			if message.chat.type == "private":
-				dbC = dbConnection.cursor()
-				res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE ID = ?', (UserStatus.ACTIVE, message.text, message.from_user.id,) )
-				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
+				SetUserBio(message.from_user.id,message.text)
+				bot.reply_to(message, "✅ Biografia impostata con successo!")
 				bot.delete_message(message.chat.id , message.reply_to_message.message_id)
 
 				#Tries to force the user to reply to the message
 			#TODO: Not sure about the order - needs to be checked
 			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
-				dbC = dbConnection.cursor()
-				res = dbC.execute('UPDATE Users SET Status=?, Biography=? WHERE ID = ?', (UserStatus.ACTIVE, message.text, message.from_user.id,) )
+				SetUserBio(message.from_user.id,message.text)
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
 				bot.delete_message(message.chat.id , message.reply_to_message.message_id)
 
