@@ -110,7 +110,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.11"
+	version = "α0.1.2.12 dev"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -1119,21 +1119,28 @@ def genericMessageHandler(message):
 				time.localtime(message.date)))
 
 			if (message.chat.type == "group" or message.chat.type == "supergroup") and not message.from_user.is_bot and message.text != "":
-				if message.text[0] == "#" or message.text[0] == "@" or message.text[0] == "." or message.text[0] == "!":
-					listName = message.text.strip()[1:].lower().split(' ')[0]
+				listRecogniserChars = ['#', '@', '!', '.', '/']
+				possibleLists = []
+				for char in listRecogniserChars:
+					[(lambda l: possibleLists.append(l.lower().split(' ')[0]))(l) for l in message.text.split(char) if len(message.text.split(char)) > 1 and l != "" and l not in possibleLists]
+				msg = ""
+				for lst in possibleLists:
+					listName = lst
 					if ListExists(listName):
 						users = GetListSubscribers(GetListID(listName))
 						if users != False:
 							prevariations = ["Signori", "Rispettabili", "Codesti", "Spettabili", ""]
 							postvariations = ["alla riscossa!", "all'attacco!", "che la conoscenza sia con voi!", "il mondo confida in voi!", 
 							"che la vostra conoscenza possa illuminare la via!", "possa la vostra conoscenza aprire nuove vie!"]
-							msg = random.choice(prevariations) + " " + listName + ", " + random.choice(postvariations) + "\n"
+							msg += random.choice(prevariations) + " " + listName + ", " + random.choice(postvariations) + "\n"
 							for user in users:
-								msg = msg + "@"+GetUserNickname(user[0]) + ", "
+								msg += "@"+GetUserNickname(user[0]) + ", "
 							msg = msg[:len(msg)-2]
+							msg += "\n"
 						else:
-							msg = "La lista  " + listName + " non ha ancora nessun iscritto :c"
-						bot.reply_to(message, msg)
+							msg += "La lista  " + listName + " non ha ancora nessun iscritto :c\n"
+				if msg != "": 
+					bot.reply_to(message, msg)
 
 				#Message counter
 				if message.chat.id == Settings.ITGroup:
