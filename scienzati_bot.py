@@ -1060,6 +1060,24 @@ def dieHandler(message):
 		bot.reply_to(message, "Autodestruction sequence initialized... \n💥 Poof! ✨")
 		sys.exit(10)
 
+@bot.message_handler(commands=['executerawSQL'])
+def rawsqlhandler(message):
+	if message.from_user.username == "Pandry":
+		dbC = dbConnection.cursor()
+		success = dbC.execute(message.text.lower().replace('/executerawsql ', ''))
+		res = dbC.fetchall()
+		markup = telebot.types.InlineKeyboardMarkup()
+		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+		bot.reply_to(message, ("Executed... \nSuccess: "+str(success!=None)+"\nResult: " + str(res)), reply_markup=markup )
+
+@bot.message_handler(commands=['commitdb'])
+def commitDBhandler(message):
+	if IsUserSuperadmin(message.from_user.username) or  (GetUser(message.from_user.id) != False and UserPermission.IsAdmin(GetUserPermissionsValue(message.from_user.id))):
+		CommitDb()
+		markup = telebot.types.InlineKeyboardMarkup()
+		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+		bot.reply_to(message, "✅ Done", reply_markup=markup )
+
 @bot.message_handler(func=lambda m: True)
 def genericMessageHandler(message):
 	#get info about the user
