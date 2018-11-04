@@ -303,7 +303,7 @@ def GetUser(userID):
 #It returns true in case of success, otherwise it returns false
 def UpdateBio(userdID, bio):
 	dbC = dbConnection.cursor()
-	res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (userdID, bio, UserStatus.USER_JUST_CREATED,) )
+	res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (userdID, bio, UserStatus.ACTIVE,) )
 	if res:
 		CommitDb()
 		return True
@@ -692,7 +692,6 @@ def start_user_registration(message):
 			#bot.reply_to(message, "creazione nuovo record utente...")
 			#Insert 
 			dbC = dbConnection.cursor()
-			#res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (message.from_user.id, message.from_user.username, UserStatus.USER_JUST_CREATED,) )
 			res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (message.from_user.id, message.from_user.username, UserStatus.ACTIVE,) )
 			dbConnection.commit()
 			if res:
@@ -1072,17 +1071,20 @@ def genericMessageHandler(message):
 		#Check for biography
 		if user["Status"] == UserStatus.WAITING_FOR_BIOGRAPHY:
 			#User is setting the Bio
+			markup = telebot.types.InlineKeyboardMarkup()
+			markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+
 			if message.chat.type == "private":
 				SetUserBio(message.from_user.id,message.text)
 				bot.reply_to(message, "✅ Biografia impostata con successo!")
-				bot.delete_message(message.chat.id , message.reply_to_message.message_id)
+				bot.delete_message(message.chat.id , message.reply_to_message.message_id, reply_markup=markup)
 
 				#Tries to force the user to reply to the message
 			#TODO: Not sure about the order - needs to be checked
 			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
 				SetUserBio(message.from_user.id,message.text)
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
-				bot.delete_message(message.chat.id , message.reply_to_message.message_id)
+				bot.delete_message(message.chat.id , message.reply_to_message.message_id, reply_markup=markup)
 
 		#Check for list
 		elif user["Status"] == UserStatus.WAITING_FOR_LIST:
