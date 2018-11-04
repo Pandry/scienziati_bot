@@ -187,6 +187,7 @@ class UserPermission: #Siply do an AND with the permission
 	# #RAGETIME
 	# ~ Pandry
 
+	#WHEN CREATING A NEW PERMISSION, JUST DUPLICATE BOTH THE LINES
 	CAN_ADD_ADMIN=int('1' + '0'*PermissionConut, 2)
 	PermissionConut +=1
 
@@ -198,6 +199,19 @@ class UserPermission: #Siply do an AND with the permission
 
 	LIST=int('1' + '0'*PermissionConut, 2)
 	PermissionConut +=1
+
+
+	def HasPermission(userPermission, permissiontoCheck):
+		if (userPermission & permissiontoCheck) == permissiontoCheck:
+			return True
+		return False
+
+	def SetPermission(userPermission, permissiontoCheck):
+		return (userPermission | permissiontoCheck)
+	
+	def RemovePermission(userPermission, permissiontoCheck):
+		return userPermission & (not(permissiontoCheck))
+
 
 	def IsAdmin(permission):
 		if (permission & UserPermission.ADMIN) == UserPermission.ADMIN:
