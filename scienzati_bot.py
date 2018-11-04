@@ -190,7 +190,7 @@ class UserPermission: #Siply do an AND with the permission
 		return False
 	
 	def SetAdminPermission(permission):
-		return permission | UserPermission.ADMIN
+		return (permission | UserPermission.ADMIN)
 	
 	def RemoveAdminPermission(permission):
 		return permission & (not(UserPermission.ADMIN))
@@ -555,7 +555,7 @@ def getUserPermissionText(userid):
 		msg = msg + "❌ Nope"
 	msg = msg + "\n"
 
-	msg = msg + "\n📝Privileges\n"
+	msg = msg + "\n 📝Privileges\n"
 	msg = msg +  "Gestione liste: "
 	if UserPermission.ListPermission(userPermission):
 		msg = msg + "✅ Sì"
@@ -622,6 +622,7 @@ def send_privs(message):
 			userid = reqUserid
 		else:
 			bot.reply_to(message, "L'utente inserito non è stato trovato in database", reply_markup=markup)
+			return
 	elif len(args) > 2:
 		bot.reply_to(message, "Sono stati inseriti troppi parametri", reply_markup=markup)
 	
