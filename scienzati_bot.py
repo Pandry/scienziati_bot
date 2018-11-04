@@ -1088,9 +1088,10 @@ def genericMessageHandler(message):
 					if ListExists(listName):
 						users = GetListSubscribers(GetListID(listName))
 						if users != False:
-							variations = ["alla riscossa!", "all'attacco!", "che la conoscenza sia con voi!", "il mondo confida in voi!", 
+							prevariations = ["Signori", "Rispettabili", "Codesti", "Spettabili", ""]
+							postvariations = ["alla riscossa!", "all'attacco!", "che la conoscenza sia con voi!", "il mondo confida in voi!", 
 							"che la vostra conoscenza possa illuminare la via!", "possa la vostra conoscenza aprire nuove vie!"]
-							msg = "Gente di " + listName + ", " + random.choice(variations) + "\n"
+							msg = random.choice(prevariations) + " " + listName + ", " + random.choice(postvariations) + "\n"
 							for user in users:
 								msg = msg + "@"+GetUserNickname(user[0]) + ", "
 							msg = msg[:len(msg)-2]
