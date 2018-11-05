@@ -5,11 +5,11 @@ import sqlite3
 import random
 import re
 import sys
+import os
 
 #Settings class
 
 class Settings:
-	TelegramApiKey = "676490981:AAELlmTlQLD4_1HojhzWIX4yISDrVU5qDmA"
 	SupremeAdmins = ["pandry","andreaidini"]#Lowercase username!
 	ITGroup = -1001068546876
 	OTGroup = -1001218814107
@@ -21,7 +21,11 @@ class Settings:
 ###
 
 #Create the bot instance
-bot = telebot.TeleBot(Settings.TelegramApiKey)
+if "TELEGRAM_API_KEY" in os.environ:
+	bot = telebot.TeleBot(os.environ["TELEGRAM_API_KEY"])
+else:
+	print ("Please enter the bot API key in the environment variable \"TELEGRAM_API_KEY\"")
+	sys.exit(1)
 botInfo = bot.get_me()
 print("Authorized on @" + botInfo.username)
 
