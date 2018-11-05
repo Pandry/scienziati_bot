@@ -695,6 +695,12 @@ def start_user_registration(message):
 			#The user needs to be created
 			#bot.reply_to(message, "creazione nuovo record utente...")
 			#Insert 
+			if message.from_user.username == None or message.from_user.username == "":
+				markup = telebot.types.InlineKeyboardMarkup()
+				markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+				bot.reply_to(message, "Errore nella registrazione: è necessario avere un username.\nImposta un username e ritenta.", reply_markup=markup)
+				return
+
 			dbC = dbConnection.cursor()
 			res = dbC.execute('INSERT INTO Users (ID, Nickname, Status) VALUES (?,?,?)', (message.from_user.id, message.from_user.username, UserStatus.ACTIVE,) )
 			dbConnection.commit()
