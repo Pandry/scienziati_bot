@@ -855,7 +855,7 @@ def completeLists(message):
 		users = GetListSubscribers(list["ID"] )
 		if users != False:
 			for user in users[:-1]:
-				msg = msg + "║" + " " + GetUserNickname(user[0]) + "\n"
+				msg = msg + "╠" + " " + GetUserNickname(user[0]) + "\n"
 			msg = msg + "╚" + " " + GetUserNickname(users[len(users)-1][0]) + "\n"
 			msg = msg + "\n"
 	if len(liste) == 0:
