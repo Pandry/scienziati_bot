@@ -122,7 +122,7 @@ Buona permanenza dallo staff di @Scienza 😁"""
 
 	info_message = """Ciao!
 Questo è il bot del gruppo @Scienza!
-Questo bot è stato sviluppato da alcuni membri del gruppo @Scienza (@AndreaIdini, @Pandry) con lo scopo di agevolare la richiesta di persone competenti in un determinato campo con lo scopo di soddisfare le domande poste nel gruppo.
+Questo bot è stato sviluppato da alcuni membri del gruppo @Scienza (@AndreaIdini, @Pandry) con lo scopo di agevolare l'intervento di persone competenti in un determinato campo e richiedere il loro aiuto riguardo le questioni e le domande poste nel gruppo.
 Il bot è OSS (Open Source Software) ed è possibile trovare il codice sorgente a questo indirizzo:
 
 https://github.com/Scienza/scienziati_bot
