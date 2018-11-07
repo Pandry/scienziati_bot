@@ -667,10 +667,10 @@ def send_welcome(message):
 	bot.reply_to(message, constResources.intro_mex, reply_markup=markup)
 
 @bot.message_handler(commands=['info', 'informazioni', 'about'])
-def send_welcome(message):
+def send_info(message):
 	markup = telebot.types.InlineKeyboardMarkup()
 	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
-	bot.reply_to(message, constResources.intro_mex, reply_markup=markup)
+	bot.reply_to(message, constResources.info_message, reply_markup=markup)
 
 @bot.message_handler(commands=['adminhelp'])
 def send_admhelp(message):
