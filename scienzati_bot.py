@@ -645,7 +645,7 @@ def getUserPermissionText(userid):
 
 #Start command.
 # This is the function called when the bot is started or the help commands are sent
-@bot.message_handler(commands=['start', 'help'])
+@bot.message_handler(commands=['start', 'help', 'aiuto'])
 def send_welcome(message):
 	markup = telebot.types.InlineKeyboardMarkup()
 	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
