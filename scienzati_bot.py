@@ -100,8 +100,11 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 /bio per scrivere qualcosa su di te
 /liste per scoprire le liste già presenti
 /gdpr consulta le norme sul GDPR
-/privs elenca i privilegi utente
+/privs elenca i privilegi di un utente (richiesto come argomento)
+/biografia mostra la biografia di un utente (richiesto come argomento)
 /disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze
+
+Puoi anche usare il bot in modalità "inline": sarà sufficiente scrivere @scienziati_bot <username> per avere informazioni riguardo l'utente
 
 In caso di problemi invece, sei pregato di conttattare @Pandry, in quanto sviluppatore del bot.
 Report di problemi, come ad esempio liste non presenti, bot non responsivo ecc sono assolutamente gradite; O anche solo per proporre qualche idea e conversarne a riguardo.
@@ -752,7 +755,7 @@ def infohandler(message):
 	if message.reply_to_message != None:
 		msg = bot.reply_to(message, "ID " + str(message.reply_to_message.message_id))
 ### Aggioramento/ impostaizone bio
-@bot.message_handler(commands=['bio', 'setbio'])
+@bot.message_handler(commands=['bio', 'setbio', 'impostabio', 'impostabiografia'])
 def setBio(message):
 	if not message.from_user.is_bot and message.text != "" :
 		# Gets info about the user
@@ -1120,7 +1123,7 @@ def commitDBhandler(message):
 		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
 		bot.reply_to(message, "✅ Done", reply_markup=markup )
 
-@bot.message_handler(commands=['bio', 'getbio', 'biografia'])
+@bot.message_handler(commands=['getbio', 'biografia'])
 def getUserBio(message):
 	requiringUser = GetUser(message.from_user.id)
 	if requiringUser == False:
