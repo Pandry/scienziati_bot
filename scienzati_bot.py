@@ -143,7 +143,7 @@ Puoi contattarlo in privato per qualunque questione, tuttavia ti chiedo di conta
 	/revokelist
 	"""
 
-	version = "α0.1.2.12 dev A"
+	version = "α0.1.2.14"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
