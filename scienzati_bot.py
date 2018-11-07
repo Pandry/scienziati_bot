@@ -1101,6 +1101,25 @@ def commitDBhandler(message):
 		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
 		bot.reply_to(message, "✅ Done", reply_markup=markup )
 
+@bot.message_handler(commands=['bio'])
+def getUserBio(message):
+	args = message.text.split(' ')
+	if len(args) == 2:
+		userNickname = args[1].replace('@', '')
+		userID = getUserId(userNickname)
+		if userID != False:
+			userBio = GetUserBio(userid)
+			markup = telebot.types.InlineKeyboardMarkup()
+			markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+			bot.reply_to(message, "La biografia dell'utente @" + userNickname + "è:\n"+userBio, reply_markup=markup )
+		else:
+			markup = telebot.types.InlineKeyboardMarkup()
+			markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+			bot.reply_to(message, "L'utente non è stato trovato", reply_markup=markup )
+
+
+
+
 @bot.message_handler(content_types=['new_chat_member', 'new_chat_members'])
 def welcomeMessage(message):
 	markup = telebot.types.InlineKeyboardMarkup()
