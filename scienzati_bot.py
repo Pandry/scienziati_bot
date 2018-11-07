@@ -101,7 +101,13 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 /liste per scoprire le liste già presenti
 /gdpr consulta le norme sul GDPR
 /privs elenca i privilegi utente
-/disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze"""
+/disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze
+
+In caso di problemi invece, sei pregato di conttattare @Pandry, in quanto sviluppatore del bot.
+Report di problemi, come ad esempio liste non presenti, bot non responsivo ecc sono assolutamente gradite; O anche solo per proporre qualche idea e conversarne a riguardo.
+A tal proposito, esiste un gruppo dedicato ai programmi scritti in comune tra i membri di @Scienza.
+Chiedi ad un amministratore per ulteriori informazioni a riguardo.
+Buona continuazione su @Scienza"""
 
 	admin_help = """Comandi admin... blabla
 	/nuovalista
