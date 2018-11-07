@@ -103,6 +103,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 /privs elenca i privilegi di un utente (richiesto come argomento)
 /biografia mostra la biografia di un utente (richiesto come argomento)
 /disiscrivi per cancellarti da una lista alla quale hai aderito, puoi usare pure: /esci, /rimuovi, /iscrizioni e /aderenze
+/info Ottieni informazioni su di me
 
 Puoi anche usare il bot in modalità "inline": sarà sufficiente scrivere @scienziati_bot <username> per avere informazioni riguardo l'utente
 
