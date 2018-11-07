@@ -110,11 +110,12 @@ Chiedi ad un amministratore per ulteriori informazioni a riguardo.
 Buona continuazione su @Scienza"""
 
 	welcome_message = """Benvenuto/a 😊
-Presentati se ti va
-Hai interessi particolari e vuoi essere avvisato quando se ne parla nel gruppo? Utilizza il nostro bot @scienzati_bot per iscriverti e registrarti nelle liste che ti interessano.
-Al fine di non "intasare" la chat con messaggi da parte mia, sei inviatato ad avviarmi in privato.
+Presentati se ti va (se possibile evidenzia le tue passioni scientifiche e/o i tuoi studi), ci farebbe piacere ☺️.
+
+Hai interessi particolari e vuoi essere avvisato quando se ne parla nel gruppo? Utilizza il nostro bot @scienzati_bot per iscriverti e registrarti nelle liste che ti interessano!
+Al fine di non "intasare" la chat con messaggi da parte mia, sei inviatata/o ad avviarmi in privato.
 In caso di dubbi, il comando /help o /aiuto sarà a tua disposizione.
-Buona permanenza dallo staff di @Scienza😁"""
+Buona permanenza dallo staff di @Scienza 😁"""
 
 	admin_help = """Comandi admin... blabla
 	/nuovalista
