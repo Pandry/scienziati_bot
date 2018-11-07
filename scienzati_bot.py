@@ -1521,9 +1521,9 @@ def getUserBioInlineQuery(inline_query):
 			msg = userNick[0].upper() + userNick[1:] + " non è ancora iscritto a nessuna lista! :c"
 			if lists != False:
 				msg = userNick[0].upper() + userNick[1:] + " è iscritto a queste liste: \n"
-				for lst in lists:
-					msg = msg + "#" + lst["Name"] + ", "
-				msg = msg[:len(msg)-2]
+				for lst in lists[:-1]:
+					msg = msg + "╠" + " " + lst["Name"] + "\n"
+				msg = msg + "╚" + " " + lists[len(lists)-1]["Name"]
 
 			responses.append(
 				telebot.types.InlineQueryResultArticle(len(responses)+1, "Ecco le liste a cui è iscritto @" + userNick[0].upper() + userNick[1:],
