@@ -114,7 +114,7 @@ Questo è il bot del gruppo @scienza e permette di usufruire di queste funzioni:
 	/revokelist
 	"""
 
-	version = "α0.1.2.12 dev"
+	version = "α0.1.2.12 dev A"
 	
 	gdpr_message = "Raccogliamo il numero di messaggi, nickname, ID e ultima volta che l'utente ha scritto. Per richiedere l'eliminazione dei propri dati contattare un amministratore ed uscire dal gruppo"
 
@@ -871,7 +871,7 @@ def subscribeUserListHandler(message):
 				#If there are still lists, print the page delimiter
 				#if len(lists) > Settings.subscriptionRows-1:
 				rightButton = telebot.types.InlineKeyboardButton(" ", callback_data="ignore")
-				if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows)) != False:
+				if AvailableListsToUser(message.from_user.id, limit=1, offset=int(Settings.subscriptionRows-1)) != False:
 					#																																	  osub-{n} => offest subscription, needed for pagination, 
 					#Teels the offset to set to correctly display the pages
 					rightButton = telebot.types.InlineKeyboardButton(f"➡️", callback_data=f"osub-"+str(Settings.subscriptionRows-1))
@@ -1105,14 +1105,16 @@ def genericMessageHandler(message):
 			if message.chat.type == "private":
 				SetUserBio(message.from_user.id,message.text)
 				bot.reply_to(message, "✅ Biografia impostata con successo!")
-				bot.delete_message(message.chat.id , message.reply_to_message.message_id, reply_markup=markup)
+				if message.reply_to_message.message_id != None
+					bot.delete_message(message.chat.id , message.reply_to_message.message_id)
 
 				#Tries to force the user to reply to the message
 			#TODO: Not sure about the order - needs to be checked
 			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
 				SetUserBio(message.from_user.id,message.text)
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
-				bot.delete_message(message.chat.id , message.reply_to_message.message_id, reply_markup=markup)
+				if message.reply_to_message.message_id != None
+					bot.delete_message(message.chat.id , message.reply_to_message.message_id)
 
 		#Check for list
 		elif user["Status"] == UserStatus.WAITING_FOR_LIST:
