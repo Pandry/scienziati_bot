@@ -1103,6 +1103,11 @@ def commitDBhandler(message):
 
 @bot.message_handler(commands=['bio', 'getbio', 'biografia'])
 def getUserBio(message):
+	requiringUser = GetUser(message.from_user.id)
+	if requiringUser == False:
+		markup = telebot.types.InlineKeyboardMarkup()
+		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+		bot.reply_to(message, "Devi essere registrato per poter far uso per queste funzioni", reply_markup=markup )
 	args = message.text.split(' ')
 	if len(args) == 2:
 		userNickname = args[1].replace('@', '')
@@ -1492,36 +1497,40 @@ def callback_query(call):
 
 @bot.inline_handler(func=lambda chosen_inline_result: True)
 def getUserBioInlineQuery(inline_query):
-	user = inline_query.query.lower().replace('@', '')
+	requiringUser = GetUser(inline_query.from_user.id)
 	responses = []
-	usersIDs = getUsersIdLike(user)
-	for userid in usersIDs:
-		userid = userid[0]
-		userNick = GetUserNickname(userid)
-		userBio = GetUserBio(userid)
-		if userBio != None:
+	if requiringUser == False:
+		responses = [telebot.types.InlineQueryResultArticle(1, "Devi essere registrato per poter far uso per queste funzioni.", telebot.types.InputTextMessageContent("Non sei autorizzato ad usare il bot."))]
+	else:
+		user = inline_query.query.lower().replace('@', '')
+		usersIDs = getUsersIdLike(user)
+		for userid in usersIDs:
+			userid = userid[0]
+			userNick = GetUserNickname(userid)
+			userBio = GetUserBio(userid)
+			if userBio != None:
+				responses.append(
+					telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s Bio: " + userBio,
+															telebot.types.InputTextMessageContent(userNick[0].upper() + userNick[1:] + "'s Biography is \"" +userBio + "\""))
+				)
 			responses.append(
-				telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s Bio: " + userBio,
-														telebot.types.InputTextMessageContent(userNick[0].upper() + userNick[1:] + "'s Biography is \"" +userBio + "\""))
+				telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s permissions",
+														telebot.types.InputTextMessageContent(getUserPermissionText(userid)))
 			)
-		responses.append(
-			telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s permissions",
-													telebot.types.InputTextMessageContent(getUserPermissionText(userid)))
-		)
-		lists = SubscribedLists(userid, limit=None)
-		msg = userNick[0].upper() + userNick[1:] + " is not subscribed to any list yet! :c"
-		if lists != False:
-			msg = userNick[0].upper() + userNick[1:] + " is subscribed to those lists: \n"
-			for lst in lists:
-				msg = msg + "#" + lst["Name"] + ", "
-			msg = msg[:len(msg)-2]
+			lists = SubscribedLists(userid, limit=None)
+			msg = userNick[0].upper() + userNick[1:] + " is not subscribed to any list yet! :c"
+			if lists != False:
+				msg = userNick[0].upper() + userNick[1:] + " is subscribed to those lists: \n"
+				for lst in lists:
+					msg = msg + "#" + lst["Name"] + ", "
+				msg = msg[:len(msg)-2]
 
-		responses.append(
-			telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s lists",
-													telebot.types.InputTextMessageContent(msg))
-		)
+			responses.append(
+				telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s lists",
+														telebot.types.InputTextMessageContent(msg))
+			)
 
-		
+			
 		
 	bot.answer_inline_query(inline_query.id, responses)
     # Query message is text
