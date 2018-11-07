@@ -1101,6 +1101,12 @@ def commitDBhandler(message):
 		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
 		bot.reply_to(message, "✅ Done", reply_markup=markup )
 
+@bot.message_handler(content_types=['new_chat_member', 'new_chat_members'])
+def welcomeMessage(message):
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+	bot.reply_to(message, constResources.welcome_message, reply_markup=markup )
+
 @bot.message_handler(func=lambda m: True)
 def genericMessageHandler(message):
 	#get info about the user
@@ -1118,7 +1124,7 @@ def genericMessageHandler(message):
 			if message.chat.type == "private":
 				SetUserBio(message.from_user.id,message.text)
 				bot.reply_to(message, "✅ Biografia impostata con successo!")
-				if message.reply_to_message.message_id != None
+				if message.reply_to_message.message_id != None:
 					bot.delete_message(message.chat.id , message.reply_to_message.message_id)
 
 				#Tries to force the user to reply to the message
@@ -1126,7 +1132,7 @@ def genericMessageHandler(message):
 			elif (message.chat.type == "group" or message.chat.type == "supergroup") and message.reply_to_message != None and message.reply_to_message.from_user.id == botInfo.id:
 				SetUserBio(message.from_user.id,message.text)
 				msg = bot.reply_to(message, "✅ Biografia impostata con successo!")
-				if message.reply_to_message.message_id != None
+				if message.reply_to_message.message_id != None:
 					bot.delete_message(message.chat.id , message.reply_to_message.message_id)
 
 		#Check for list
