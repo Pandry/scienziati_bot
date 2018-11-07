@@ -1510,11 +1510,11 @@ def getUserBioInlineQuery(inline_query):
 			userBio = GetUserBio(userid)
 			if userBio != None:
 				responses.append(
-					telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s Bio: " + userBio,
-															telebot.types.InputTextMessageContent(userNick[0].upper() + userNick[1:] + "'s Biography is \"" +userBio + "\""))
+					telebot.types.InlineQueryResultArticle(len(responses)+1, "Biografia di @" + userNick[0].upper() + userNick[1:],
+															telebot.types.InputTextMessageContent("Questa è la biografia di @" + userNick[0].upper() + userNick[1:] + ":\n" + userBio))
 				)
 			responses.append(
-				telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s permissions",
+				telebot.types.InlineQueryResultArticle(len(responses)+1, "Permessi di @" + userNick[0].upper() + userNick[1:],
 														telebot.types.InputTextMessageContent(getUserPermissionText(userid)))
 			)
 			lists = SubscribedLists(userid, limit=None)
