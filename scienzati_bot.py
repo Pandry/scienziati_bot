@@ -117,6 +117,18 @@ Al fine di non "intasare" la chat con messaggi da parte mia, sei inviatata/o ad 
 In caso di dubbi, il comando /help o /aiuto sarà a tua disposizione.
 Buona permanenza dallo staff di @Scienza 😁"""
 
+	info_message = """Ciao!
+Questo è il bot del gruppo @Scienza!
+Questo bot è stato sviluppato da alcuni membri del gruppo @Scienza (@AndreaIdini, @Pandry) con lo scopo di agevolare la richiesta di persone competenti in un determinato campo con lo scopo di soddisfare le domande poste nel gruppo.
+Il bot è OSS (Open Source Software) ed è possibile trovare il codice sorgente a questo indirizzo:
+
+https://github.com/Scienza/scienziati_bot
+
+La persona che al momento si occupa dello sviluppo attivo del bot e si occupa di mantenerlo operativo è @Pandry.
+Puoi contattarlo in privato per qualunque questione, tuttavia ti chiedo di contattarlo in caso di questioni riguardati problemi con me o nel caso tu voglia qualche funzionalità aggiuntiva ad esempio.
+
+	"""
+
 	admin_help = """Comandi admin... blabla
 	/nuovalista
 	/rimuovilista
@@ -646,6 +658,12 @@ def getUserPermissionText(userid):
 #Start command.
 # This is the function called when the bot is started or the help commands are sent
 @bot.message_handler(commands=['start', 'help', 'aiuto'])
+def send_welcome(message):
+	markup = telebot.types.InlineKeyboardMarkup()
+	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+	bot.reply_to(message, constResources.intro_mex, reply_markup=markup)
+
+@bot.message_handler(commands=['info', 'informazioni', 'about'])
 def send_welcome(message):
 	markup = telebot.types.InlineKeyboardMarkup()
 	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
