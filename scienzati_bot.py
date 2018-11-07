@@ -1101,14 +1101,14 @@ def commitDBhandler(message):
 		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
 		bot.reply_to(message, "✅ Done", reply_markup=markup )
 
-@bot.message_handler(commands=['bio'])
+@bot.message_handler(commands=['bio', 'getbio', 'biografia'])
 def getUserBio(message):
 	args = message.text.split(' ')
 	if len(args) == 2:
 		userNickname = args[1].replace('@', '')
 		userID = getUserId(userNickname)
 		if userID != False:
-			userBio = GetUserBio(userid)
+			userBio = GetUserBio(userID)
 			markup = telebot.types.InlineKeyboardMarkup()
 			markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
 			bot.reply_to(message, "La biografia dell'utente @" + userNickname + "è:\n"+userBio, reply_markup=markup )
