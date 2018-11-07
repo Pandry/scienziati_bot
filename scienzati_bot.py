@@ -762,7 +762,7 @@ def setBio(message):
 				dbConnection.commit()
 			else:
 				#Nothing to do here
-				msg = bot.reply_to(message, "You can't enter a bio.")
+				msg = bot.reply_to(message, "Non puoi inrerire una biografia.")
 
 
 #Creazione di una nuova lista
@@ -775,7 +775,7 @@ def newList(message):
 			#Check if the user exists
 			if user == False:
 				#the user does not exist
-				bot.reply_to(message, "Something's wrong here. error code: #Q534")
+				bot.reply_to(message, "Oh no! Qualcosa è andato storto. Codice di errore: #Q534")
 			else:
 				res = setNewUserStatus(message.from_user.id,UserStatus.WAITING_FOR_LIST )
 				markup = telebot.types.InlineKeyboardMarkup()
@@ -784,7 +784,7 @@ def newList(message):
 				msg = bot.reply_to(message, "Per creare una nuova lista, scrivi il nome in chat privata o in un messaggio che mi risponda rispondendomi", reply_markup=markup)
 				dbConnection.commit()
 	else:
-		bot.reply_to(message, "Error 403 - ❌ Unauthorized")
+		bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 
 #Creazione di una nuova lista
 @bot.message_handler(commands=['deletelist', 'removelist', 'rimuovilista', 'eliminalista'])
@@ -796,14 +796,14 @@ def deleteListHandler(message):
 			#Check if the user exists
 			if user == False:
 				#the user does not exist
-				msg = bot.reply_to(message, "Something's wrong here. error code: #J258")
+				msg = bot.reply_to(message, "Oh no! Qualcosa è andato storto. Codice di errore: #J258")
 			else:
 				#Asks for the bio
 				#need to send message with a list
 				liste = GetLists()
 				markup = telebot.types.InlineKeyboardMarkup()
 				#Print the lists as inline buttons
-				msg = "Random message padding"
+				msg = "Ecco le liste esistenti al momento:"
 				if liste == False:#TODO test
 					msg = "Al momento non è presente nessuna lista.\nSi prega di riprovare in seguito."
 				else:
@@ -819,7 +819,7 @@ def deleteListHandler(message):
 				#SubscribeUserToList()
 				
 	else:
-		msg = bot.reply_to(message, "Error 403 - ❌ Unauthorized")
+		msg = bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 
 @bot.message_handler(commands=['del', 'delete'])
 def deleteBotMessage(message):
@@ -895,7 +895,7 @@ def subscribeUserListHandler(message):
 
 		elif UserStatus.IsBanned(userStatus):
 			#banned, not much you can do right now
-			bot.reply_to(message, "Error 403 - ❌ Unauthorized")
+			bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 		else:
 			#User in another activity (like creating list)
 			bot.reply_to(message, "Sembra che tu sia occupato in un'altra azione (come impostare una biografia).\n Sarebbe opportuno terminare quell'azione prima di cercare di intraprenderne altre")
@@ -936,7 +936,7 @@ def unsubscribeUserListHandler(message):
 
 		elif UserStatus.IsBanned(userStatus):
 			#banned, not much you can do right now
-			bot.reply_to(message, "Error 403 - ❌ Unauthorized")
+			bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 		else:
 			#User in another activity (like creating list)
 			bot.reply_to(message, "Sembra che tu sia occupato in un'altra azione (come impostare una biografia).\n Sarebbe opportuno terminare quell'azione prima di cercare di intraprenderne altre")
@@ -971,7 +971,7 @@ def setAdminPermissionHandler(message):
 			else:
 				bot.reply_to(message, "❌ Utilizzo: /setadmin {@}username")
 				return
-	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+	bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 
 @bot.message_handler(commands=['unsetadmin', 'removeadmin'])
 def unsetAdminPermissionHandler(message):
@@ -1003,7 +1003,7 @@ def unsetAdminPermissionHandler(message):
 			else:
 				bot.reply_to(message, "❌ Utilizzo: /removeadmin {@}username")
 				return
-	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+	bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 
 
 @bot.message_handler(commands=['grantlist'])
@@ -1033,7 +1033,7 @@ def grantListCreationPermissionHandler(message):
 			else:
 				bot.reply_to(message, "❌ Utilizzo: /grantlist {@}username")
 				return
-	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+	bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 
 @bot.message_handler(commands=['revokelist'])
 def revokeListCreationPermissionHandler(message):
@@ -1066,7 +1066,7 @@ def revokeListCreationPermissionHandler(message):
 			else:
 				bot.reply_to(message, "❌ Utilizzo: /revokelist {@}username")
 				return
-	bot.reply_to(message, "❌ Error 403 - Unauthorized")
+	bot.reply_to(message, "❌ Errore 403 - Permessi insufficienti per eseguire l'azione")
 
 
 @bot.message_handler(commands=['ping'])
@@ -1518,15 +1518,15 @@ def getUserBioInlineQuery(inline_query):
 														telebot.types.InputTextMessageContent(getUserPermissionText(userid)))
 			)
 			lists = SubscribedLists(userid, limit=None)
-			msg = userNick[0].upper() + userNick[1:] + " is not subscribed to any list yet! :c"
+			msg = userNick[0].upper() + userNick[1:] + " non è ancora iscritto a nessuna lista! :c"
 			if lists != False:
-				msg = userNick[0].upper() + userNick[1:] + " is subscribed to those lists: \n"
+				msg = userNick[0].upper() + userNick[1:] + " è iscritto a queste liste: \n"
 				for lst in lists:
 					msg = msg + "#" + lst["Name"] + ", "
 				msg = msg[:len(msg)-2]
 
 			responses.append(
-				telebot.types.InlineQueryResultArticle(len(responses)+1,  userNick[0].upper() + userNick[1:] + "'s lists",
+				telebot.types.InlineQueryResultArticle(len(responses)+1, "Ecco le liste a cui è iscritto @" + userNick[0].upper() + userNick[1:],
 														telebot.types.InputTextMessageContent(msg))
 			)
 
