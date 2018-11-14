@@ -1150,9 +1150,10 @@ def getUserBio(message):
 
 @bot.message_handler(content_types=['new_chat_member', 'new_chat_members'])
 def welcomeMessage(message):
-	markup = telebot.types.InlineKeyboardMarkup()
-	markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
-	bot.reply_to(message, constResources.welcome_message, reply_markup=markup )
+	if message.chat.id == Settings.ITGroup:
+		markup = telebot.types.InlineKeyboardMarkup()
+		markup.row(telebot.types.InlineKeyboardButton("❌ Chiudi", callback_data="deleteDis"))
+		bot.reply_to(message, constResources.welcome_message, reply_markup=markup )
 
 @bot.message_handler(func=lambda m: True)
 def genericMessageHandler(message):
